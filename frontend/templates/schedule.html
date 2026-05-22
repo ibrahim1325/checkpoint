@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ (user.theme if user else 'dark') or 'dark' }}">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Schedule</title>
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_profile_panel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_schedule.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_transition.css') }}">
+
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='script_schedule.js') }}" defer></script>
+</head>
+
+<body>
+
+
+{# Valeurs déjà injectées par app.context_processor, avec fallback #}
+{% set _status = _status or 'online' %}
+{% set _status_label = _status_label or 'Online' %}
+
+<div class="container">
+
+    <!-- ========================= SIDEBAR ========================= -->
+    <aside class="sidebar sidebar-planning">
+
+        <!-- Zone scrollable -->
+        <div class="sidebar-scroll">
+
+            <!-- Logo -->
+            <div class="logo">
+                <a class="home-logo" href="{{ url_for('home') }}">
+                    <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+                </a>
+            </div>
+
+            <!-- Mini Calendar -->
+            <div class="mini-calendar">
+
+                <div class="cal-header">
+                    <button class="prev-month">❮</button>
+                    <span class="cal-month">Month 2025</span>
+                    <button class="next-month">❯</button>
+                </div>
+
+                <div class="cal-grid">
+                    <div>L</div><div>M</div><div>M</div><div>J</div><div>V</div><div>S</div><div>D</div>
+                    <!-- Days added dynamically -->
+                </div>
+
+            </div> <!-- end mini calendar -->
+
+            <!-- Menu -->
+            <nav class="menu">
+                <ul>
+                    <li><a href="{{ url_for('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a></li>
+                    <li class="active"><a href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-days"></i><span>Schedule</span></a></li>
+                    <!-- ====== ICI : Messages avec bulle ====== -->
+                    <li class="menu-item-messages">
+                        <a class="nav-item" href="{{ url_for('friends') }}">
+                            <i class="fa-solid fa-message"></i>
+                            <span>Messages</span>
+                            {% if unread_messages_count and unread_messages_count > 0 %}
+                            <span class="badge-unread">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <!-- ======================================= -->
+                </ul>
+            </nav>
+
+        </div> <!-- END sidebar-scroll -->
+
+
+        <!-- ---------- FIXED Bottom Panel ---------- -->
+        <div class="sidebar-bottom">
+
+            <button class="me-button status-{{ _status }}" id="openProfile" type="button"
+                    aria-haspopup="dialog" aria-controls="profilePanel">
+
+                <div class="me-avatar-wrap">
+                    {% if avatar_url %}
+                    <img class="me-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                    {% else %}
+                    <div class="me-avatar me-initials">{{ user.username[:1]|upper }}</div>
+                    {% endif %}
+                    <span class="me-dot" aria-hidden="true"></span>
+                </div>
+
+                <div class="me-id">
+                    <strong>{{ user.username }}</strong>
+                    <span class="me-status-text" id="meStatusText">{{ _status_label }}</span>
+                </div>
+
+                <span class="me-caret" aria-hidden="true">▾</span>
+            </button>
+
+        </div> <!-- END sidebar-bottom -->
+
+    </aside>
+
+    <!-- ========================= MAIN CONTENT ========================= -->
+    <main class="content">
+
+        <header class="schedule-header">
+            <div class="schedule-header-text">
+                <h1>Schedule</h1>
+                <p>Manage your availability for each day of the week</p>
+            </div>
+
+            <button class="privacy-button" id="openPrivacy">
+                <i class="fa-solid fa-lock"></i>
+                Privacy
+            </button>
+        </header>
+
+
+        <div class="calendar-wrapper">
+            <div class="calendar-grid">
+
+                <!-- Monday -->
+                <div class="day-column">
+                    <div class="day-header" data-weekday="1">Mon</div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                </div>
+
+                <!-- Tuesday -->
+                <div class="day-column">
+                    <div class="day-header" data-weekday="2">Tue</div>
+                    <div class="calendar-cell unavailable"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                </div>
+
+                <!-- Wednesday -->
+                <div class="day-column">
+                    <div class="day-header" data-weekday="3">Wed</div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                </div>
+
+                <!-- Thursday -->
+                <div class="day-column">
+                    <div class="day-header" data-weekday="4">Thu</div>
+                    <div class="calendar-cell unavailable"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                </div>
+
+                <!-- Friday -->
+                <div class="day-column">
+                    <div class="day-header" data-weekday="5">Fri</div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                </div>
+
+                <!-- Saturday -->
+                <div class="day-column">
+                    <div class="day-header" data-weekday="6">Sat</div>
+                    <div class="calendar-cell unavailable"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                </div>
+
+                <!-- Sunday -->
+                <div class="day-column">
+                    <div class="day-header" data-weekday="0">Sun</div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                    <div class="calendar-cell"></div>
+                </div>
+
+            </div>
+        </div>
+
+        <button class="add-button"><i class="fa-solid fa-plus"></i> Add Slot</button>
+
+    </main>
+
+</div>
+
+
+<!-- ========================= PROFILE PANEL ========================= -->
+<div class="profilepanel-backdrop" id="profileBackdrop" hidden></div>
+
+<div class="profilepanel" id="profilePanel" role="dialog" aria-modal="true" aria-labelledby="pp-title" hidden>
+
+    <div class="pp-header">
+        <div class="pp-user">
+            <div class="pp-avatar-wrap">
+                {% if avatar_url %}
+                <img class="pp-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                {% else %}
+                <div class="pp-avatar pp-initials">{{ user.username[:1]|upper }}</div>
+                {% endif %}
+                <span id="ppAvatarDot" class="pp-avatar-dot {{ _dot }}"></span>
+            </div>
+
+            <div class="pp-id">
+                <strong id="pp-title">{{ user.username }}</strong>
+                <span class="pp-statusline" id="ppStatusText">{{ _status_label }}</span>
+            </div>
+        </div>
+
+        <button class="pp-close" id="ppClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="pp-section">
+        <div class="pp-label">Status</div>
+        <div class="pp-status-grid" role="group" aria-label="Choose a status">
+            <button class="pp-status" data-status="online"><span class="dot dot-online"></span> Online</button>
+            <button class="pp-status" data-status="idle"><span class="dot dot-idle"></span> Idle</button>
+            <button class="pp-status" data-status="dnd"><span class="dot dot-dnd"></span> Do Not Disturb</button>
+            <button class="pp-status" data-status="invisible"><span class="dot dot-invisible"></span> Invisible</button>
+        </div>
+    </div>
+
+    <div class="pp-section">
+        <div class="pp-label">Profile</div>
+        <div class="pp-actions">
+            <a class="pp-btn" href="{{ url_for('profile') }}">
+                <i class="fa-solid fa-pen-to-square"></i>
+                Edit Profile
+            </a>
+            <a class="pp-btn" href="{{ url_for('settings') }}">
+                <i class="fa-solid fa-gear"></i>
+                Settings
+            </a>
+        </div>
+    </div>
+
+    <div class="pp-section">
+        <a class="pp-logout" href="{{ url_for('logout') }}">Log out</a>
+    </div>
+
+</div>
+
+<!-- ========================= PRIVACY MODAL (unique) ========================= -->
+<div class="privacy-backdrop" id="privacyBackdrop" hidden>
+
+<div class="privacy-modal" id="privacyModal" hidden>
+    <div class="privacy-modal-header">
+        <h2>Schedule privacy</h2>
+        <button class="privacy-close" id="closePrivacy" aria-label="Close">✕</button>
+    </div>
+
+    <div class="privacy-modal-body">
+        <div class="privacy-options">
+            <label>
+                <input type="radio" name="schedulePrivacy" value="friends" checked>
+                All Friends
+            </label>
+
+            <label>
+                <input type="radio" name="schedulePrivacy" value="custom">
+                Only selected friends
+            </label>
+
+            <label>
+                <input type="radio" name="schedulePrivacy" value="private">
+                Only me
+            </label>
+        </div>
+
+        <div class="privacy-custom-block" id="privacyCustomBlock">
+            <p class="privacy-helper">
+                Choose which friends can see your schedule:
+            </p>
+            <div class="privacy-friend-list" id="privacyFriendList">
+                <!-- La liste des amis sera injectée en JS -->
+            </div>
+        </div>
+    </div>
+
+    <div class="privacy-modal-footer">
+        <button class="privacy-btn secondary" id="cancelPrivacy">Cancel</button>
+        <button class="privacy-btn primary" id="savePrivacy">Save</button>
+    </div>
+</div>
+</div>
+
+<script src="{{ url_for('static', filename='script_profile_panel.js') }}" defer></script>
+
+</body>
+</html>

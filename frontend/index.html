@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkpoint — Accueil</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="profile.css" />
+
+  <!-- ⚙️ Charge d’abord l’API backend -->
+  <script defer src="api.js"></script>
+
+  <!-- Puis la logique d’interface -->
+  <script defer src="profile.js"></script>
+</head>
+
+<body>
+  <div class="app">
+    <!-- Rail gauche (icônes avec logos) -->
+    <aside class="servers" aria-label="Espaces">
+      <!-- Planning -->
+      <a class="server" href="planning.html" title="Planning">
+        <img src="logo/planninglogo.png" alt="Logo Planning" />
+      </a>
+
+      <!-- Gestion de compte -->
+      <a class="server" href="account.html" title="Compte">
+        <img src="logo/gestiondecomptelogo.png" alt="Logo Gestion de compte" />
+      </a>
+
+      <!-- Amis -->
+      <a class="server" href="#" title="Amis">
+        <img src="logo/amislogo.png" alt="Logo Amis" />
+      </a>
+    </aside>
+
+    <!-- Topbar -->
+    <header class="topbar" role="banner">
+      <a class="brand" href="index.html" aria-label="Accueil">
+        <img src="logo/logo_2bg.png" alt="Logo Checkpoint" style="width:64px;height:64px;border-radius:6px;" />
+        <strong>Checkpoint</strong>
+      </a>
+    </header>
+
+    <!-- Sidebar : messages privés + profil -->
+    <aside class="sidebar" aria-label="Messages privés">
+      <div class="section-title">Messages privés</div>
+      <div class="dm-list">
+        <a class="dm active" href="#">
+          <div class="avatar">H</div>
+          <div>
+            <div class="name">Hashim</div>
+            <div class="sub">En ligne</div>
+          </div>
+        </a>
+        <a class="dm" href="#">
+          <div class="avatar">T</div>
+          <div>
+            <div class="name">Terence</div>
+            <div class="sub">Hors ligne</div>
+          </div>
+        </a>
+        <a class="dm" href="#">
+          <div class="avatar">I</div>
+          <div>
+            <div class="name">Ibrahima</div>
+            <div class="sub">Occupé</div>
+          </div>
+        </a>
+        <a class="dm" href="#">
+          <div class="avatar">GC</div>
+          <div>
+            <div class="name">Checkpoint</div>
+            <div class="sub">Groupe</div>
+          </div>
+        </a>
+      </div>
+
+      <!-- 👤 Profil utilisateur -->
+      <div class="profile">
+        <div class="me" id="openProfile" tabindex="0" role="button" aria-haspopup="dialog" aria-controls="profilePanel" aria-label="Ouvrir le panneau profil">
+          <div class="avatar">HA
+            <span class="status" aria-label="en ligne"></span>
+          </div>
+          <div class="id">
+            <strong>Hashim</strong>
+            <span>@amstud</span>
+          </div>
+          <a class="icon-btn" href="#" title="Muet">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3a4 4 0 00-4 4v4.18l-1.59-1.59L5 11l4 4 4-4-1.41-1.41L12 11.18V7a2 2 0 114 0v1h2V7a4 4 0 00-4-4zM6 19h12v2H6z"/></svg>
+          </a>
+          <a class="icon-btn" href="#" title="Casque">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1a9 9 0 00-9 9v7a3 3 0 003 3h2v-8H5v-2a7 7 0 1114 0v2h-3v8h2a3 3 0 003-3v-7a9 9 0 00-9-9z"/></svg>
+          </a>
+          <a class="icon-btn" href="#" title="Paramètres">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.14 12.94a7.997 7.997 0 000-1.88l2.03-1.58a.5.5 0 00.12-.64l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.952 7.952 0 00-1.62-.94l-.36-2.54A.5.5 0 0013.9 0h-3.8a.5.5 0 00-.49.42l-.36 2.54c-.57.22-1.11.52-1.62.94l-2.39-.96a.5.5 0 00-.6.22L.82 7.06a.5.5 0 00.12.64l2.03 1.58c-.04.31-.07.63-.07.96s.03.65.07.96L.94 12.94a.5.5 0 00-.12.64l1.92 3.32c.13.23.39.32.63.22l2.39-.96c.5.42 1.05.76 1.62.98l.36 2.54c.05.24.25.42.49.42h3.8c.24 0 .45-.18.49-.42l.36-2.54c.57-.22 1.11-.52 1.62-.94l2.39.96c.24.1.5.01.63-.22l1.92-3.32a.5.5 0 00-.12-.64l-2.03-1.58zM12 15.5A3.5 3.5 0 1115.5 12 3.5 3.5 0 0112 15.5z"/></svg>
+          </a>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Contenu principal -->
+    <main class="main" id="content" role="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div>
+          <h1 id="hero-title">Bienvenue sur Checkpoint</h1>
+          <p>Une application pour tout ce que vous avez besoin pour jouer !</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Panneau profil -->
+  <div class="profile-panel-backdrop" id="profileBackdrop" hidden></div>
+
+  <div class="profile-panel" id="profilePanel" role="dialog" aria-modal="true" aria-labelledby="pp-title" hidden>
+    <div class="pp-header">
+      <div class="pp-user">
+        <div class="pp-avatar">HA</div>
+        <div class="pp-id">
+          <strong id="pp-title">Hashim</strong>
+          <span>@amstud</span>
+        </div>
+      </div>
+      <button class="pp-close" id="ppClose" aria-label="Fermer">✕</button>
+    </div>
+
+    <div class="pp-section">
+      <div class="pp-label">Statut</div>
+      <div class="pp-status-grid" role="group" aria-label="Choisir un statut">
+        <button class="pp-status" data-status="online"><span class="dot dot-online"></span> En ligne</button>
+        <button class="pp-status" data-status="idle"><span class="dot dot-idle"></span> Absent</button>
+        <button class="pp-status" data-status="dnd"><span class="dot dot-dnd"></span> Ne pas déranger</button>
+        <button class="pp-status" data-status="invisible"><span class="dot dot-invisible"></span> Invisible</button>
+      </div>
+    </div>
+
+    <div class="pp-section">
+      <div class="pp-label">Profil</div>
+      <div class="pp-actions">
+        <a class="pp-btn" href="#">Modifier le profil</a>
+        <a class="pp-btn" href="#">Changer de compte</a>
+      </div>
+    </div>
+
+    <div class="pp-section">
+      <button class="pp-logout" id="ppLogout">Déconnexion</button>
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ (user.theme if user else 'dark') or 'dark' }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Appearance Settings</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_settings.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_transition.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+  <style>
+    /* =========================
+       Theme variables (light/dark only)
+    ========================= */
+    :root[data-theme="light"]{
+      --bg-dark-1:#f5f6f8; --bg-dark-2:#ffffff;
+      --panel:rgba(0,0,0,.04); --panel-2:rgba(0,0,0,.08); --line:rgba(0,0,0,.12);
+      --text-high:#111; --muted:rgba(0,0,0,.65);
+      --primary-color:#FFD400; --primary-ink:#111;
+      color-scheme:light;
+    }
+    :root[data-theme="dark"]{ color-scheme:dark; }
+
+    .form-section{
+      background:var(--panel); border:1px solid var(--line);
+      border-radius:14px; padding:20px; margin:18px 0;
+    }
+    .form-section h2{ margin-bottom:10px; font-size:18px; }
+
+    /* =========================
+       Theme tiles (Light / Dark)
+       -> Self-contained colors so labels never "disappear"
+    ========================= */
+    .theme-tiles{ display:flex; gap:14px; flex-wrap:wrap; margin-top:8px; }
+    .tile{
+      /* default (will be overridden by .light / .dark) */
+      --tile-bg:#fff; 
+      --tile-ink:#111;
+      --tile-border:rgba(0,0,0,.15);
+      --tile-block:#f5f6f8;
+      --tile-pill:#FFD400;
+
+      position:relative; width:130px; height:86px; border-radius:12px;
+      border:1px solid var(--tile-border); background:var(--tile-bg);
+      color:var(--tile-ink);
+      display:flex; align-items:flex-end; justify-content:center;
+      cursor:pointer; user-select:none; padding:8px 10px; gap:8px;
+      transition:transform .06s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .tile:hover{ transform:translateY(-1px); box-shadow:0 6px 16px rgba(0,0,0,.12); }
+    .tile input{ position:absolute; inset:0; opacity:0; cursor:pointer; z-index:2; }
+    .tile .label{ font-weight:700; font-size:13px; z-index:1; }
+
+    /* Visible check badge */
+    .check{
+      position:absolute; top:8px; left:8px; width:18px; height:18px;
+      border-radius:6px; border:2px solid rgba(0,0,0,.25); background:transparent;
+      display:flex; align-items:center; justify-content:center; font-size:12px; color:#fff;
+      transition:all .15s ease; z-index:1;
+    }
+    .tile input:checked + .check{
+      background:#5865F2; border-color:#5865F2; box-shadow:0 0 0 3px rgba(88,101,242,.25);
+    }
+
+    /* Variants – self-contained palette */
+    .tile.light{
+      --tile-bg:#ffffff;
+      --tile-ink:#111111;
+      --tile-border:rgba(0,0,0,.15);
+      --tile-block:#f5f6f8;
+      --tile-pill:#FFD400;
+    }
+    .tile.dark{
+      --tile-bg:#111111;
+      --tile-ink:#f5f5f5;
+      --tile-border:rgba(255,255,255,.18);
+      --tile-block:#232323;
+      --tile-pill:#FFD400;
+    }
+
+    /* Mini UI preview inside tile */
+    .ui-preview{
+      position:absolute; inset:12px 12px 34px 12px; border-radius:8px;
+      border:1px solid var(--tile-border);
+      background:linear-gradient(180deg, rgba(0,0,0,.04), transparent);
+      display:grid; grid-template-columns:1fr 1fr; gap:6px; padding:6px;
+    }
+    .ui-preview .block{ border-radius:6px; border:1px solid var(--tile-border); background:var(--tile-block); }
+    .ui-preview .pill{
+      grid-column:1 / -1; height:18px; border-radius:999px;
+      background:var(--tile-pill);
+      border:1px solid rgba(0,0,0,.1);
+    }
+    .tile.dark .ui-preview .pill{ border-color:rgba(0,0,0,.35); }
+
+    /* Selection aesthetics */
+    .tile input:checked ~ .label{ text-decoration:none; }
+    .tile input:checked ~ .ui-preview{ box-shadow:0 0 0 2px rgba(88,101,242,.35) inset; }
+
+    /* Cards preview below */
+    .preview{ margin-top:14px; display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+    .card-preview{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px; background:#FFD400; color:#111;
+      border-radius:999px; padding:6px 10px; font-weight:700; border:1px solid rgba(0,0,0,.15);
+      box-shadow:0 8px 18px rgba(0,0,0,.08), inset 0 0 0 1px rgba(0,0,0,.06);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- ===== Sidebar ===== -->
+    <aside class="sidebar settings-sidebar" role="navigation" aria-label="Settings sidebar">
+      <a class="home-logo compact" href="{{ url_for('home') }}" aria-label="Go to Home">
+        <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+      </a>
+
+      <nav class="settings-top">
+        <a class="settings-top-link" href="{{ url_for('home') }}">
+          <i class="fa-solid fa-house"></i><span>Home</span>
+        </a>
+      </nav>
+
+      <div class="settings-divider"></div>
+
+      <!-- USER SETTINGS -->
+      <nav class="settings-nav" aria-label="User settings">
+        <div class="nav-section">
+          <div class="nav-title">USER SETTINGS</div>
+
+          <a class="nav-item" href="{{ url_for('settings') }}">
+            <i class="fa-regular fa-user"></i><span>My Account</span>
+          </a>
+          <a class="nav-item" href="{{ url_for('profile') }}">
+            <i class="fa-solid fa-id-badge"></i><span>Profiles</span>
+          </a>
+        </div>
+
+        <!-- APP SETTINGS -->
+        <div class="nav-section">
+          <div class="nav-title">APP SETTINGS</div>
+
+          <a class="nav-item active" href="{{ url_for('settings_appearance') }}">
+            <i class="fa-regular fa-sun"></i><span>Appearance</span>
+            <span class="badge badge-red">NEW</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="settings-divider"></div>
+
+      <!-- Logout collé en bas -->
+      <a class="settings-logout" href="{{ url_for('logout') }}">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
+      </a>
+    </aside>
+
+    <!-- ===== Main Content ===== -->
+    <main class="content">
+      <header>
+        <h1>Appearance</h1>
+        <p>Choose between Light or Dark theme.</p>
+      </header>
+
+      <form class="settings-form" method="POST" action="{{ url_for('settings_appearance') }}" novalidate>
+        <div class="form-section">
+          <h2>Theme</h2>
+          {% set the_theme = (user.theme if user else 'dark') %}
+          <div class="theme-tiles" role="radiogroup" aria-label="Theme selector">
+            <!-- Light -->
+            <label class="tile light">
+              <input type="radio" name="theme" value="light" {% if the_theme=='light' %}checked{% endif %}>
+              <span class="check"><i class="fa-solid fa-check"></i></span>
+              <div class="ui-preview">
+                <div class="block"></div><div class="block"></div><div class="pill"></div>
+              </div>
+              <span class="label">Light</span>
+            </label>
+
+            <!-- Dark -->
+            <label class="tile dark">
+              <input type="radio" name="theme" value="dark" {% if the_theme!='light' %}checked{% endif %}>
+              <span class="check"><i class="fa-solid fa-check"></i></span>
+              <div class="ui-preview">
+                <div class="block"></div><div class="block"></div><div class="pill"></div>
+              </div>
+              <span class="label">Dark</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2>Preview</h2>
+          <div class="preview">
+            <div class="card-preview">
+              <h3>Card Title</h3>
+              <p>This is a sample paragraph using current colors.</p>
+              <div class="pill"><i class="fa-solid fa-star"></i> Accent</div>
+            </div>
+            <div class="card-preview">
+              <h3>Another Block</h3>
+              <p>Buttons, panels and borders adapt to your theme.</p>
+              <div class="pill"><i class="fa-solid fa-wand-magic-sparkles"></i> Primary</div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-save">Save Appearance</button>
+      </form>
+    </main>
+  </div>
+
+  <script>
+    // Live theme preview when clicking a tile
+    document.addEventListener('DOMContentLoaded', () => {
+      const root = document.documentElement;
+      document.querySelectorAll('input[name="theme"]').forEach(radio => {
+        radio.addEventListener('change', () => {
+          root.setAttribute('data-theme', radio.value === 'light' ? 'light' : 'dark');
+        });
+      });
+    });
+  </script>
+</body>
+</html>

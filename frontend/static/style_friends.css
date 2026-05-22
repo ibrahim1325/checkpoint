@@ -1,0 +1,857 @@
+/* ===============================
+   FRIENDS PAGE - CHECKPOINT STYLE
+   =============================== */
+
+/* 2ᵉ colonne : sidebar DM / amis */
+.dm-sidebar {
+    width: 260px;
+    height: 100%;
+    padding: 14px 10px;
+    background: linear-gradient(
+            180deg,
+            rgba(0,0,0,0.20),
+            rgba(0,0,0,0.08)
+    );
+    border-right: 1px solid var(--line);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ===============================
+   TOP : LIEN FRIENDS + SEARCH
+   =============================== */
+
+/* Conteneur haut (Friends + barre recherche)  */
+.dm-top {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 0 2px 6px;
+}
+
+/* Lien "Friends" : rectangulaire arrondi, style Home/Messages, accent jaune */
+.dm-sidebar .dm-top .dm-top-friends-link,
+.dm-sidebar .dm-top .dm-top-friends-link:link,
+.dm-sidebar .dm-top .dm-top-friends-link:visited {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    border-radius: 12px; /* rectangulaire mais doux */
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-high);
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        background 0.15s ease,
+        color 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.18s ease,
+        transform 0.08s ease;
+}
+
+/* Icône Friends */
+.dm-sidebar .dm-top .dm-top-friends-link i {
+    font-size: 14px;
+    color: var(--text-high);
+    opacity: 0.9;
+}
+
+/* Hover : un peu plus lumineux + bord jaune */
+.dm-sidebar .dm-top .dm-top-friends-link:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: var(--primary-color);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.55);
+    transform: translateY(-1px);
+}
+
+/* Active : on enlève un peu le relief */
+.dm-sidebar .dm-top .dm-top-friends-link:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+}
+
+/* Wrapper de la barre de recherche DM  */
+.dm-search-wrap {
+    width: 100%;
+}
+
+/* Input de recherche DM, version pill */
+.dm-search-input {
+    width: 100%;
+    padding: 9px 14px;
+    border-radius: 999px; /* plus arrondi */
+    border: 1px solid var(--line);
+    background: rgba(0,0,0,0.55);
+    color: var(--text-high);
+    font-size: 12px;
+}
+
+.dm-search-input::placeholder {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.dm-search-input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(136, 113, 0, 0.18);
+    background: rgba(0,0,0,0.7);
+}
+
+/* Titre "Messages privés" */
+.dm-section-title {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--muted);
+    padding: 4px 6px;
+}
+
+/* Liste DM */
+.dm-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 0 2px;
+    overflow-y: auto;
+}
+
+.dm-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+
+.dm-item:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+/* Lien interne d'un DM : occupe tout le bloc et enlève le style "lien bleu" */
+.dm-item-link,
+.dm-item-link:link,
+.dm-item-link:visited {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    text-decoration: none;
+    color: var(--text-high);
+}
+
+/* Sous-texte (status) reste en muted */
+.dm-item-link .dm-sub {
+    color: var(--muted);
+}
+
+/* Optionnel : sur hover, on garde les bonnes couleurs */
+.dm-item:hover .dm-item-link {
+    color: var(--text-high);
+}
+
+/* Wrapper avatar + dot statut */
+.dm-avatar-wrap {
+    position: relative;
+    width: 28px;
+    height: 28px;
+}
+
+/* Avatar DM : image OU initiale */
+.dm-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--panel-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-high);
+    font-weight: 600;
+    font-size: 14px;
+    object-fit: cover;           /* pour les <img> */
+    border: 1px solid rgba(0,0,0,0.4);
+}
+
+/* Petit point de statut en bas à droite de l'avatar DM */
+.dm-status-dot {
+    position: absolute;
+    right: -2px;
+    bottom: -2px;
+    width: 9px;
+    height: 9px;
+    border-radius: 999px;
+    border: 2px solid var(--container-bg, #121212);
+}
+
+/* Utilise les couleurs définies par .dot-online / .dot-idle / etc. */
+.dm-status-dot.dot-online    { background: #3BA55D; }
+.dm-status-dot.dot-idle      { background: #FAA81A; }
+.dm-status-dot.dot-dnd       { background: #ED4245; }
+.dm-status-dot.dot-invisible { background: #747F8D; }
+
+.dm-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.dm-name {
+    font-size: 13px;
+    color: var(--text-high);
+}
+
+.dm-sub {
+    font-size: 11px;
+    color: var(--muted);
+}
+
+.dm-empty {
+    font-size: 12px;
+    color: var(--muted);
+    padding: 6px 8px;
+}
+
+/* ---------- Zone principale ---------- */
+
+.friends-main {
+    display: flex;
+    flex-direction: column;
+    padding-top: 22px;
+}
+
+/* Barre de recherche globale, sous les onglets */
+.friends-global-search-wrap {
+    width: 100%;
+    margin: 6px 0 18px 0;
+}
+
+.friends-global-search {
+    width: 100%;
+    padding: 10px 16px;
+    border-radius: 999px; /* plus arrondi */
+    border: 1px solid var(--line);
+    background: rgba(0,0,0,0.45);
+    color: var(--text-high);
+    font-size: 14px;
+}
+
+.friends-global-search::placeholder {
+    color: var(--muted);
+}
+
+.friends-global-search:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(255,212,0,0.16);
+}
+
+/* Topbar : onglets */
+.friends-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+}
+
+.friends-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+/* Onglets : En ligne / Tous / Ajouter */
+.friends-tab {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--muted);
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none; /* pour les <a> */
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.friends-tab:hover {
+    background: var(--panel);
+    border-color: var(--line);
+    color: var(--text-high);
+}
+
+.friends-tab-active {
+    background: var(--panel-2);
+    border-color: var(--line);
+    color: var(--text-high);
+}
+
+/* Onglet "Ajouter un ami" en vert */
+.friends-tab-add {
+    background: #3BA55D;
+    border-color: #3BA55D;
+    color: #ffffff;
+}
+
+/* "EN LIGNE – X" / "TOUS LES AMIS – X" */
+.friends-section-header {
+    margin: 4px 0 8px;
+}
+
+.section-title {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+}
+
+/* Liste principale d'amis */
+.friends-list ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.friend-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+
+.friend-row:hover {
+    background: rgba(255,255,255,0.04);
+}
+
+.friend-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Wrapper avatar + dot statut pour la liste principale */
+.friend-avatar-wrap {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+/* Avatar ami : image OU initiale */
+.friend-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    background: var(--panel-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-high);
+    font-weight: 600;
+    font-size: 15px;
+    object-fit: cover;           /* pour les <img> */
+    border: 1px solid rgba(0,0,0,0.45);
+}
+
+/* Dot de statut sur les amis dans la liste principale */
+.friend-status-dot {
+    position: absolute;
+    right: -3px;
+    bottom: -3px;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    border: 2px solid var(--container-bg, #121212);
+}
+
+.friend-status-dot.dot-online    { background: #3BA55D; }
+.friend-status-dot.dot-idle      { background: #FAA81A; }
+.friend-status-dot.dot-dnd       { background: #ED4245; }
+.friend-status-dot.dot-invisible { background: #747F8D; }
+
+.friend-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.friend-name {
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-high);
+}
+
+.friend-status {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.friend-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Boutons icône à droite */
+.friend-icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.12s ease, color 0.12s ease;
+}
+
+/* Cas où le bouton est un <a> (icône message) → pas de bleu moche */
+.friend-actions a.friend-icon-btn,
+.friend-actions a.friend-icon-btn:link,
+.friend-actions a.friend-icon-btn:visited {
+    text-decoration: none;
+    color: var(--muted);
+}
+
+/* Hover identique pour <button> et <a> */
+.friend-icon-btn:hover,
+.friend-actions a.friend-icon-btn:hover {
+    background: var(--panel-2);
+    color: var(--text-high);
+}
+
+/* Anti-aliasing propre pour les icônes */
+.friend-actions a.friend-icon-btn i,
+.friend-icon-btn i {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+}
+
+.no-friends {
+    margin-top: 12px;
+    font-size: 14px;
+    color: var(--muted);
+}
+
+/* =========================================================
+   PAGE ADD FRIEND
+========================================================= */
+
+.friends-add-section {
+    margin-top: 40px;
+    max-width: 620px;
+}
+
+.friends-add-title {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-high);
+    margin-bottom: 6px;
+}
+
+.friends-add-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    margin-bottom: 18px;
+}
+
+/* Card ultra épurée */
+.friends-add-card.sleek {
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+}
+
+/* Input arrondi, très propre */
+.friends-add-input.sleek {
+    flex: 1;
+    padding: 12px 16px;
+    border: none;
+    background: rgba(0,0,0,0.25);
+    border-radius: 12px;
+    color: var(--text-high);
+    font-size: 14px;
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: border 0.2s ease, background 0.2s ease;
+}
+
+.friends-add-input.sleek:focus {
+    outline: none;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--primary-color);
+}
+
+/* Bouton vert premium */
+.sleek-btn {
+    margin-left: 10px;
+    padding: 12px 20px;
+    background: #3BA55D;
+    border-radius: 12px;
+    border: none;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.15s ease, box-shadow 0.25s ease;
+    box-shadow: 0 4px 14px rgba(59,165,93,0.38);
+}
+
+.sleek-btn:hover {
+    background: #329653;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(59,165,93,0.45);
+}
+
+.sleek-btn:active {
+    transform: translateY(0px);
+    box-shadow: 0 2px 10px rgba(59,165,93,0.3);
+}
+
+
+/* Bouton supprimer ami (poubelle rouge) */
+.delete-friend-btn i {
+    color: #ff4d4d;
+    font-size: 16px;
+}
+
+.delete-friend-btn:hover {
+    background: rgba(255, 77, 77, 0.15);
+}
+
+.delete-friend-btn:hover i {
+    color: #ff1f1f;
+}
+
+
+/* ===============================
+   DEMANDES D'AMIS
+=============================== */
+
+.friend-requests {
+    margin: 10px 0 16px 0;
+    max-width: 620px;
+}
+
+.friend-requests-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-high);
+    margin-bottom: 6px;
+}
+
+.friend-requests-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.friend-requests-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(0,0,0,0.35);
+    border: 1px solid var(--line);
+}
+
+.friend-requests-from {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.friend-accept-btn {
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: none;
+    background: #3BA55D;
+    color: #ffffff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.friend-accept-btn:hover {
+    background: #2F8B4C;
+    transform: translateY(-1px);
+}
+
+.friend-request-avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 999px;
+    object-fit: cover;
+    background: var(--panel-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--text-high);
+}
+
+.friend-request-avatar.initials {
+    background: var(--panel-2);
+}
+
+
+/* ===============================
+   MESSAGES FLASH (ADD FRIEND)
+=============================== */
+
+.friends-flash-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+    max-width: 620px;
+}
+
+.friends-flash {
+    padding: 8px 12px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid transparent;
+}
+
+/* Succès = vert doux */
+.friends-flash-success {
+    background: rgba(59,165,93,0.1);
+    border-color: rgba(59,165,93,0.6);
+    color: #C8F7D1;
+}
+
+/* Erreur = rouge */
+.friends-flash-error {
+    background: rgba(240,71,71,0.12);
+    border-color: rgba(240,71,71,0.7);
+    color: #FFD1D1;
+}
+
+/* Info = plus neutre */
+.friends-flash-info {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.25);
+    color: var(--text-high);
+}
+
+.friends-flash-container.input-flash {
+    margin-top: 10px;
+    max-width: 620px;
+}
+
+
+/* ===============================
+   MODALE SUPPRESSION D'AMI
+=============================== */
+
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    backdrop-filter: blur(3px);
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 80;
+}
+
+.modal.delete-modal {
+    position: fixed;
+    inset-inline: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-inline: auto;
+    width: min(380px, 92vw);
+    background: rgba(15,15,15,0.98);
+    border-radius: 16px;
+    padding: 18px 20px 16px;
+    box-shadow: 0 18px 45px rgba(0,0,0,0.65);
+    border: 1px solid rgba(255,255,255,0.08);
+    z-index: 81;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.delete-modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-high);
+    margin-bottom: 2px;
+}
+
+.delete-modal-text {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.4;
+}
+
+.delete-modal-text strong {
+    color: var(--text-high);
+}
+
+.delete-modal-buttons {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancel,
+.btn-danger {
+    min-width: 96px;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid transparent;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    transform 0.08s ease, box-shadow 0.18s ease;
+}
+
+.btn-cancel {
+    background: transparent;
+    color: var(--muted);
+    border-color: var(--line);
+}
+
+.btn-cancel:hover {
+    background: rgba(255,255,255,0.04);
+    color: var(--text-high);
+}
+
+.btn-danger {
+    background: #ff4d4d;
+    color: #ffffff;
+    box-shadow: 0 6px 18px rgba(255,77,77,0.45);
+}
+
+.btn-danger:hover {
+    background: #ff3333;
+    box-shadow: 0 8px 22px rgba(255,77,77,0.55);
+    transform: translateY(-1px);
+}
+
+.btn-danger:active {
+    transform: translateY(0);
+    box-shadow: 0 3px 10px rgba(255,77,77,0.35);
+}
+
+/* ===== Menu "3 petits points" sur chaque ami ===== */
+
+.friend-menu {
+    position: relative;
+}
+
+.friend-menu-dropdown {
+    position: absolute;
+    right: 0;
+    top: 120%;
+    background: rgba(0,0,0,0.95);           /* ou var(--panel-2) si tu préfères */
+    border-radius: 10px;
+    padding: 4px 0;
+    min-width: 180px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.6);
+    border: 1px solid rgba(255,255,255,0.06);
+    z-index: 30;
+}
+
+/* ===== Variante claire pour le thème "light" ===== */
+[data-theme="light"] .friend-menu-dropdown {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 4px 0;
+    min-width: 180px;
+    border: 1px solid rgba(15,23,42,0.12);    /* léger gris */
+    box-shadow: 0 10px 25px rgba(15,23,42,0.18);
+}
+
+/* Texte + hover adaptés en mode clair */
+[data-theme="light"] .friend-menu-item {
+    color: #111827; /* presque noir */
+}
+
+[data-theme="light"] .friend-menu-item:hover {
+    background: rgba(15,23,42,0.04); /* petit gris très léger */
+}
+
+
+.friend-menu-dropdown.hidden {
+    display: none;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.friend-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    padding: 8px 12px;
+    background: transparent;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    color: var(--text-high);
+    font-size: 13px;
+    text-align: left;
+}
+
+.friend-menu-item i {
+    font-size: 13px;
+    opacity: 0.9;
+}
+
+.friend-menu-item span {
+    flex: 1;
+}
+
+.friend-menu-item:hover {
+    background: rgba(255,255,255,0.06);
+}
+
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 1024px) {
+    .dm-sidebar {
+        display: none; /* on masque la 2ᵉ sidebar sur petit écran */
+    }
+
+    .friends-global-search-wrap {
+        width: 80%;
+    }
+}
+
+@media (max-width: 900px) {
+    .friends-main {
+        padding-top: 18px;
+    }
+
+    .friends-topbar {
+        margin-bottom: 10px;
+    }
+}

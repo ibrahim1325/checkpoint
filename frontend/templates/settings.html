@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ (user.theme if user else 'dark') or 'dark' }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Account Settings</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_settings.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_transition.css') }}">
+</head>
+<body>
+  <div class="container">
+<!-- ===== Sidebar ===== -->
+    <aside class="sidebar settings-sidebar" role="navigation" aria-label="Settings sidebar">
+      <!-- Logo up top -->
+      <a class="home-logo compact" href="{{ url_for('home') }}" aria-label="Go to Home">
+        <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+      </a>
+
+      <!-- Top link -->
+      <nav class="settings-top">
+        <a class="settings-top-link" href="{{ url_for('home') }}">
+          <i class="fa-solid fa-house"></i><span>Home</span>
+        </a>
+      </nav>
+
+      <div class="settings-divider"></div>
+
+      <!-- USER SETTINGS -->
+      <nav class="settings-nav" aria-label="User settings">
+        <div class="nav-section">
+          <div class="nav-title">USER SETTINGS</div>
+
+
+                 <!-- Active = Profiles -->
+          <a class="nav-item active" href="{{ url_for('settings') }}">
+            <i class="fa-regular fa-user"></i><span>My Account</span>
+          </a>
+
+          <a class="nav-item" href="{{ url_for('profile') }}">
+            <i class="fa-solid fa-id-badge"></i><span>Profiles</span>
+          </a>
+        </div>
+
+        <!-- APP SETTINGS -->
+        <div class="nav-section">
+          <div class="nav-title">APP SETTINGS</div>
+
+          <a class="nav-item" href="{{ url_for('settings_appearance') }}">
+            <i class="fa-regular fa-sun"></i><span>Appearance</span>
+            <span class="badge badge-red">NEW</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="settings-divider"></div>
+
+      <!-- Logout collé en bas -->
+      <a class="settings-logout" href="{{ url_for('logout') }}">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
+      </a>
+    </aside>
+
+
+    <!-- ===== Main Content ===== -->
+    <main class="content">
+      <header>
+        <h1>Account Settings</h1>
+        <p>Edit your personal information</p>
+      </header>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <div class="alerts">
+            {% for category, msg in messages %}
+              <div class="alert {{ category }}">{{ msg }}</div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endwith %}
+
+      <form class="settings-form" method="POST" action="{{ url_for('update_profile') }}" enctype="multipart/form-data" novalidate>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" value="{{ user.username }}" required autocomplete="username">
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" value="{{ user.email }}" required autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="password">New Password</label>
+          <input type="password" id="password" name="password" placeholder="Leave empty to keep current" autocomplete="new-password">
+        </div>
+
+        <div class="form-group">
+          <label for="bio">Player Info</label>
+          <textarea id="bio" name="bio" rows="3" placeholder="Ex: PS5 player passionate about RPGs...">{{ user.bio }}</textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="avatar">Profile Picture</label>
+          <input type="file" id="avatar" name="avatar" accept="image/*">
+        </div>
+
+        <div style="margin: 20px 0; padding: 15px; background: #2a2a2a; border-radius: 8px;">
+          <h3 style="margin-bottom: 10px;"> Two-Factor Authentication</h3>
+            <p style="color: #aaa; margin-bottom: 15px; font-size: 14px;">
+            When enabled, you'll need to enter a code sent to your email when logging in.
+            </p>
+    
+            <label style="display: flex; align-items: center; cursor: pointer;">
+            <input type="checkbox" 
+               name="mfa_enabled" 
+               style="margin-right: 10px; width: 18px; height: 18px;"
+               {% if user.mfa_enabled %}checked{% endif %}>
+              <span>Enable Email Verification (MFA)</span>
+            </label>
+            {% if user.mfa_enabled %}
+            <p style="color: #4CAF50; margin-top: 10px; font-size: 14px;">
+            ✓ MFA is currently enabled for your account.
+            </p>
+            {% endif %}
+        </div>
+
+        <button type="submit" class="btn-save">Save Changes</button>
+        <button type="submit" formaction="{{ url_for('delete_account') }}" formmethod="POST" class="btn-delete" onclick="return confirm('Are you sure you want to delete your account? This action cannot be undone.');">
+        Delete Account
+        </button>
+      </form>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='script_settings.js') }}"></script>
+</body>
+</html>

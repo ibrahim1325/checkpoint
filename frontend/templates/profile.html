@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ ((user.theme or 'dark') | trim | lower) }}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile • Checkpoint</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_transition.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_profile.css') }}">
+
+  <script>
+    (function () {
+      var html = document.documentElement;
+      var v = (html.getAttribute('data-theme') || 'dark').trim().toLowerCase();
+      if (v !== 'light' && v !== 'dark') v = 'dark';
+      html.setAttribute('data-theme', v);
+    })();
+  </script>
+
+  <!-- Layout safeties -->
+  <style>
+    .sidebar.settings-sidebar{
+      display:flex; flex-direction:column;
+      position:relative; overflow:hidden;
+      padding-bottom:72px;
+    }
+    .settings-nav{
+      flex:1 1 auto; overflow-y:auto; padding-right:6px;
+      scrollbar-width:thin; scrollbar-color: rgba(127,127,127,.45) transparent;
+    }
+    .settings-nav::-webkit-scrollbar{ width:8px; }
+    .settings-nav::-webkit-scrollbar-thumb{ background: rgba(127,127,127,.45); border-radius:8px; }
+    .settings-nav::-webkit-scrollbar-track{ background: transparent; }
+
+    .settings-logout{
+      position:absolute; left:14px; right:14px; bottom:14px;
+      display:flex; align-items:center; gap:12px;
+      padding:12px 14px; border-radius:12px;
+      background:#b3261e; color:#fff; text-decoration:none;
+      border:1px solid var(--line);
+      transition: filter .15s ease, transform .06s ease;
+      z-index:1;
+    }
+    .settings-logout i{ font-size:18px; color:#fff; }
+    .settings-logout:hover{ filter:brightness(1.08); }
+    .settings-logout:active{ transform: translateY(1px); }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+
+    <!-- Sidebar -->
+    <aside class="sidebar settings-sidebar">
+      <a class="home-logo compact" href="{{ url_for('home') }}">
+        <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+      </a>
+
+      <nav class="settings-top">
+        <a class="settings-top-link" href="{{ url_for('home') }}">
+          <i class="fa-solid fa-house"></i><span>Home</span>
+        </a>
+      </nav>
+
+      <div class="settings-divider"></div>
+
+      <nav class="settings-nav">
+        <div class="nav-section">
+          <div class="nav-title">USER SETTINGS</div>
+
+          <a class="nav-item" href="{{ url_for('settings') }}">
+            <i class="fa-regular fa-user"></i><span>My Account</span>
+          </a>
+
+          <a class="nav-item active" href="{{ url_for('profile') }}">
+            <i class="fa-solid fa-id-badge"></i><span>Profiles</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-title">APP SETTINGS</div>
+
+          <a class="nav-item" href="{{ url_for('settings_appearance') }}">
+            <i class="fa-regular fa-sun"></i><span>Appearance</span>
+            <span class="badge badge-red">NEW</span>
+          </a>
+        </div>
+      </nav>
+
+      <div class="settings-divider"></div>
+
+      <a class="settings-logout" href="{{ url_for('logout') }}">
+        <i class="fa-solid fa-arrow-right-from-bracket"></i><span>Logout</span>
+      </a>
+    </aside>
+
+    <!-- Main -->
+    <main class="content">
+      <header class="header">
+        <h1>{{ user.username }}</h1>
+        <p class="subtitle">Your public profile</p>
+      </header>
+
+      <!-- Profile Card -->
+      <section class="profile-card">
+        <div class="profile-image">
+
+          {% if user.profile_pic %}
+            {% if user.profile_pic.startswith('http') %}
+              <!-- Google/Facebook URL -->
+              <img src="{{ user.profile_pic }}" alt="Profile Picture of {{ user.username }}">
+            {% else %}
+              <!-- Base64 -->
+              <img src="data:image/png;base64,{{ user.profile_pic }}" alt="Profile Picture of {{ user.username }}">
+            {% endif %}
+          {% else %}
+            <!-- Fallback default avatar -->
+            <i class="fa-solid fa-circle-user fa-10x"></i>
+          {% endif %}
+
+        </div>
+
+        <div class="profile-info">
+          <h2>{{ user.username }}</h2>
+          <p class="profile-bio">{{ user.bio or 'None' }}</p>
+
+          <div class="profile-meta">
+            <div class="meta-item">
+              <i class="fa-regular fa-calendar"></i>
+              Joined: {{ user.created_at.strftime('%Y-%m-%d') if user.created_at else '—' }}
+            </div>
+
+            <div class="meta-item">
+              <i class="fa-regular fa-id-card"></i>
+              ID: {{ user.id }}
+            </div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+
+  </div>
+</body>
+</html>

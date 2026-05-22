@@ -1,0 +1,297 @@
+/* ==== THEME BASE (mettre ce bloc au tout début) ==== */
+/* Valeurs par défaut = dark */
+:root{
+  --primary-color: #FFD400;
+  --primary-ink: #111111;
+
+  --bg-dark-1: #050505;
+  --bg-dark-2: #1a1a1a;
+
+  --panel: rgba(255,255,255,0.05);
+  --panel-2: rgba(255,255,255,0.08);
+  --line: rgba(255,255,255,0.12);
+  --muted: rgba(255,255,255,0.75);
+  --text-high: #F5F5F5;
+}
+
+/* Mode clair (s’active avec <html data-theme="light">) */
+:root[data-theme="light"]{
+  --bg-dark-1: #f5f6f8;
+  --bg-dark-2: #ffffff;
+
+  --panel: rgba(0,0,0,0.04);
+  --panel-2: rgba(0,0,0,0.08);
+  --line: rgba(0,0,0,0.12);
+  --muted: rgba(0,0,0,0.65);
+  --text-high: #111111;
+
+  color-scheme: light;
+}
+
+/* Mode dark explicite (optionnel) */
+:root[data-theme="dark"]{
+  color-scheme: dark;
+}
+
+/* --- util --- */
+[hidden]{display:none !important;}
+
+/* =========================
+   Backdrop (pas de blur)
+========================= */
+.profilepanel-backdrop{
+  position:fixed; inset:0;
+  background:transparent;          /* pas de voile */
+  z-index:1500;
+}
+
+/* =========================
+   Profile Panel
+   -> se positionne dynamiquement via JS
+========================= */
+.profilepanel{
+  position:fixed;
+  z-index:2000;
+
+  /* valeurs par défaut (écrasées par JS à l’ouverture) */
+  left: 0;
+  top: 0;
+
+  width: 380px;
+  max-width: 92vw;
+  max-height: 86vh;
+
+  background: var(--bg-dark-2);
+  color: var(--text-high);
+  border: 1px solid var(--line);
+  border-radius:16px;
+  box-shadow:
+    0 18px 60px rgba(0,0,0,.55),
+    inset 0 0 0 1px rgba(255,255,255,.03);
+  overflow:hidden;
+
+  /* Animation depuis le mini-profil (bas-gauche) */
+  transform-origin: bottom left;
+  opacity: 0;
+  transform: translateY(12px) scale(.98);
+  transition: opacity .22s ease, transform .22s ease;
+}
+.profilepanel.is-open{
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* petit ajustement en mobile : on laisse le JS aligner à gauche de l’écran */
+@media (max-width: 840px){
+  .profilepanel{ width:min(420px, 96vw); }
+}
+
+/* =========================
+   Header
+========================= */
+.pp-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 18px 10px;
+  border-bottom:1px solid var(--line);
+  background: var(--panel);
+}
+
+.pp-user{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.pp-avatar{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  object-fit:cover;
+  background: var(--panel-2);
+  border:1px solid var(--line);
+}
+
+.pp-initials{
+  width:44px;
+  height:44px;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  background: var(--panel-2);
+  border:1px solid var(--line);
+  color: var(--text-high);
+}
+
+.pp-id{
+  display:flex;
+  flex-direction:column;
+  gap:2px;
+}
+
+.pp-id strong{
+  display:flex; align-items:center; gap:8px;
+  font-size:15px; line-height:1.2;
+  color: var(--text-high);
+}
+
+/* Taille du point quand il est dans le header */
+.pp-id strong .dot{
+  width:10px; height:10px; border-radius:50%;
+}
+
+/* petit point de statut à côté du nom */
+#ppHeaderDot{
+  width:9px; height:9px; border-radius:50%;
+  display:inline-block; opacity:.85;
+}
+
+/* couleurs dynamiques réutilisées */
+.dot-online{ background:#22c55e; }
+.dot-idle{ background:#f59e0b; }
+.dot-dnd{ background:#ef4444; }
+.dot-invisible{ background:#9ca3af; }
+
+.pp-id span{
+  display:flex; align-items:center; gap:6px;
+  font-size:13px; color: var(--muted);
+}
+
+.pp-close{
+  background:transparent; border:0;
+  color: var(--muted);
+  width:30px; height:30px; border-radius:8px; cursor:pointer;
+  transition: background .15s ease, color .15s ease;
+}
+.pp-close:hover{
+  background: var(--panel-2);
+  color: var(--text-high);
+}
+
+/* wrapper pour superposer le dot sur l’avatar du grand panel */
+.pp-avatar-wrap{
+  position: relative;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+}
+
+.pp-avatar-dot{
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  /* anneau pour “découper” dans le fond du header */
+  border: 2px solid var(--bg-dark-2); /* suit le thème */
+  box-shadow: 0 0 0 2px rgba(0,0,0,.25);
+}
+
+/* couleurs de statut réutilisées */
+.pp-avatar-dot.dot-online    { background:#22c55e; }
+.pp-avatar-dot.dot-idle      { background:#f59e0b; }
+.pp-avatar-dot.dot-dnd       { background:#ef4444; }
+.pp-avatar-dot.dot-invisible { background:#9ca3af; }
+
+/* =========================
+   Sections / Status
+========================= */
+.pp-section{ padding:14px 18px; }
+.pp-label{
+  font-size:12px; text-transform:uppercase; letter-spacing:.4px;
+  color: var(--muted); margin-bottom:10px;
+}
+
+.pp-status-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.pp-status{
+  display:flex; align-items:center; gap:8px;
+  width:100%; padding:12px 14px;
+  background: var(--panel);
+  color: var(--text-high);
+  border:1px solid var(--line);
+  border-radius:12px; cursor:pointer;
+  transition: background .15s ease, border-color .15s ease;
+}
+.pp-status:hover{ background: var(--panel-2); border-color: var(--line); }
+.pp-status.is-current{ background: var(--panel-2); border-color: var(--line); }
+
+/* dots */
+.dot{ width:10px; height:10px; border-radius:50%; display:inline-block; }
+.dot-online{ background:#22c55e; }
+.dot-idle{ background:#f59e0b; }
+.dot-dnd{ background:#ef4444; }
+.dot-invisible{ background:#9ca3af; }
+
+/* =========================
+   Actions / Logout
+========================= */
+.pp-actions{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.pp-btn{
+  display:flex; align-items:center; justify-content:center;
+  padding:11px 14px; border-radius:12px;
+  background: var(--panel); color: var(--text-high);
+  text-decoration:none; border:1px solid var(--line);
+  transition: background .15s ease, border-color .15s ease, transform .06s ease;
+}
+.pp-btn:hover{ background: var(--panel-2); border-color: var(--line); }
+
+.pp-logout{
+  display:block; text-align:center; background:#b3261e; color:#fff;
+  text-decoration:none; border-radius:12px; padding:12px 14px;
+  border:1px solid var(--line);
+  transition: filter .15s ease, transform .06s ease;
+}
+.pp-logout:hover{ filter:brightness(1.05); }
+
+/* =========================
+   Mini-profil (sidebar)
+========================= */
+.sidebar{ padding:30px 15px 8px; }
+.menu{ flex:1; }
+
+.me-button{
+  position:relative; margin-top:auto; margin-bottom:0;
+  width:100%; height:72px; padding:12px 14px;
+  display:flex; align-items:center; gap:12px;
+  background: var(--panel); color: var(--text-high);
+  border:1px solid var(--line); border-radius:14px;
+  cursor:pointer; transition: background .15s ease, border-color .15s ease, transform .05s ease;
+}
+.me-button:hover{ background: var(--panel-2); border-color: var(--line); }
+.me-button:active{ transform: translateY(1px); }
+
+.me-avatar-wrap{ position:relative; width:40px; height:40px; border-radius:50%; flex:0 0 40px; }
+.me-avatar{ width:100%; height:100%; border-radius:50%; object-fit:cover; border:1px solid var(--line); display:block; }
+.me-initials{
+  width:40px; height:40px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  background: var(--panel-2); font-weight:700; font-size:14px; color: var(--text-high);
+}
+.me-dot{
+  position:absolute; right:-2px; bottom:-2px; width:12px; height:12px; border-radius:50%;
+  border:2px solid var(--bg-dark-2); box-shadow:0 0 0 2px rgba(0,0,0,.25);
+  background:#2ecc71; /* online par défaut */
+}
+/* couleurs dynamiques via classe */
+.me-button.status-online    .me-dot{ background:#2ecc71; }
+.me-button.status-idle      .me-dot{ background:#f5a623; }
+.me-button.status-dnd       .me-dot{ background:#ff3b30; }
+.me-button.status-invisible .me-dot{ background:#7f8c8d; }
+
+.me-id{ display:flex; flex-direction:column; line-height:1.1; }
+.me-id strong{ font-size:14.5px; color: var(--text-high); }
+.me-status-text{ font-size:12px; color: var(--muted); margin-top:2px; }
+.me-caret{ margin-left:auto; color: var(--muted); font-size:13px; opacity:.9; }
+
+.pp-btn i {
+  font-size: 15px;
+  margin-right: 8px;
+  opacity: 0.85;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.pp-btn:hover i {
+  transform: rotate(10deg);
+  opacity: 1;
+}

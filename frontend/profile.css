@@ -1,0 +1,73 @@
+/* Backdrop */
+.profile-panel-backdrop{
+  position: fixed; inset: 0; background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px); z-index: 40;
+}
+
+/* Conteneur du panneau (collé en bas-gauche, au-dessus de la sidebar) */
+.profile-panel{
+  position: fixed; left: 92px; bottom: 76px; /* espace pour le rail + bloc profil */
+  width: 360px; max-width: calc(100vw - 120px);
+  background: #121212; border: 1px solid #2a2a2a; border-radius: 16px;
+  box-shadow: 0 18px 48px rgba(0,0,0,.5);
+  color: #f2f2f2; z-index: 50; padding: 14px;
+  animation: pp-in .16s ease-out;
+}
+
+@keyframes pp-in{ from{ transform: translateY(10px); opacity:0 } to{ transform:none; opacity:1 } }
+
+/* header */
+.pp-header{ display:flex; align-items:center; gap:10px; }
+.pp-user{ display:flex; align-items:center; gap:10px; }
+.pp-avatar{
+  width:38px; height:38px; border-radius:50%; background:#2b2b2b; border:1px solid #2f2f2f;
+  display:grid; place-items:center; font-weight:700; color:#ddd; position:relative;
+}
+.pp-id{ line-height:1.1 }
+.pp-id strong{ display:block }
+.pp-id span{ color:#a9a9a9; font-size:.9rem }
+.pp-close{
+  margin-left:auto; background:#1a1a1a; border:1px solid #2a2a2a; color:#e8e8e8;
+  width:30px; height:30px; border-radius:8px; cursor:pointer;
+}
+.pp-close:hover{ filter:brightness(1.08) }
+
+.pp-section{ margin-top:12px; padding-top:12px; border-top:1px solid #222 }
+.pp-label{ color:#a1a1a1; font-size:.92rem; margin-bottom:8px }
+
+/* Statuts */
+.pp-status-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+.pp-status{
+  display:flex; align-items:center; gap:10px; width:100%;
+  background:#171717; border:1px solid #242424; border-radius:12px;
+  padding:10px; color:#eaeaea; cursor:pointer; text-align:left;
+}
+.pp-status:hover{ filter: brightness(1.06) }
+.dot{ width:10px; height:10px; border-radius:50%; display:inline-block }
+.dot-online{ background:#22c55e }
+.dot-idle{ background:#f59e0b }
+.dot-dnd{ background:#ef4444 }
+.dot-invisible{ background:#9ca3af }
+
+/* Actions profil */
+.pp-actions{ display:grid; grid-template-columns:1fr 1fr; gap:8px }
+.pp-btn{
+  display:inline-flex; align-items:center; justify-content:center; gap:8px;
+  padding:10px 12px; border-radius:12px; border:1px solid #2a2a2a; background:#151515;
+  color:#f2f2f2; text-decoration:none;
+}
+.pp-btn:hover{ filter:brightness(1.06) }
+
+/* Déconnexion */
+.pp-logout{
+  display:block; width:100%;
+  background: linear-gradient(180deg,#8a1b1b,#711616);
+  border:1px solid #8b1f1f; color:#ffecec; font-weight:700;
+  padding:12px; border-radius:12px; cursor:pointer;
+  text-transform:uppercase; letter-spacing:.3px;
+}
+.pp-logout:hover{ filter:brightness(1.06) }
+
+@media (max-width: 700px){
+  .profile-panel{ left: 80px; right: 18px; width:auto }
+}

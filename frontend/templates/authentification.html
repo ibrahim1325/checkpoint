@@ -1,0 +1,129 @@
+<script>document.documentElement.classList.add('js');</script>
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login/Signup Form</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_auth.css') }}" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_transition.css') }}">
+</head>
+
+<body>
+  <div class="container">
+    <!-- Login Form -->
+    <div class="form-box login">
+      <form id="loginForm" action="/login" method="POST">
+        <h1>Login</h1>
+        
+        <!-- Afficher l'erreur de connexion si elle existe -->
+        {% if login_error %}
+        <div class="error-message server-error" style="text-align: center; margin-bottom: 15px;">
+          {{ login_error }}
+        </div>
+        {% endif %}
+        
+        <div class="input-box">
+          <input type="text" name="username" placeholder="Username" required 
+                 value="{{ login_username or '' }}">
+          <i class="fa-solid fa-user"></i>
+        </div>
+        <div class="input-box">
+          <input type="password" name="password" placeholder="Password" required>
+          <i class="fa-solid fa-lock"></i>
+        </div>
+        <div class="forgot-link">
+          <a href="/forgot" class="forgot-link">Forgot Password ?</a>
+        </div>
+        <button type="submit" class="btn">Login</button>
+        <p>Or login with social platforms</p>
+        <div class="social-icons">
+          <a href="{{ url_for('auth_google') }}"><i class="fa-brands fa-google"></i></a>
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="{{ url_for('auth_facebook') }}"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#"><i class="fa-brands fa-playstation"></i></a>
+          <a href="#"><i class="fa-brands fa-xbox"></i></a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Register Form -->
+    <div class="form-box register">
+      <form id="registerForm" action="/register" method="POST">
+        <h1>Register</h1>
+        
+        <!-- Afficher l'erreur d'inscription si elle existe -->
+        {% if register_error %}
+        <div class="error-message server-error" style="text-align: center; margin-bottom: 15px;">
+          {{ register_error }}
+        </div>
+        {% endif %}
+        
+        <!-- Afficher le message de succès si l'inscription a réussi -->
+        {% if register_success %}
+        <div class="success-message" style="text-align: center; margin-bottom: 15px; color: #4CAF50;">
+          {{ register_success }}
+        </div>
+        {% endif %}
+        
+        <div class="input-box">
+          <input id="registerUsername" name="username" type="text" placeholder="Username" required minlength="4" 
+                 value="{{ register_username or '' }}">
+          <i class="fa-solid fa-user"></i>
+          <span class="error-message" id="usernameError" aria-live="polite"></span>
+        </div>
+        <div class="input-box">
+          <input id="registerEmail" name="email" type="email" placeholder="Email" required
+                 value="{{ register_email or '' }}">
+          <i class="fa-solid fa-envelope"></i>
+          <span class="error-message" id="emailError" aria-live="polite"></span>
+        </div>
+        <div class="input-box">
+          <input id="registerPassword" name="password" type="password" placeholder="Password" required>
+          <i class="fa-solid fa-lock"></i>
+          <span class="error-message" id="passwordError" aria-live="polite"></span>
+        </div>
+        <button type="submit" class="btn">Register</button>
+        <p>Or register with social platforms</p>
+        <div class="social-icons">
+          <a href="#"><i class="fa-brands fa-google"></i></a>
+          <a href="#"><i class="fa-brands fa-instagram"></i></a>
+          <a href="#"><i class="fa-brands fa-facebook"></i></a>
+          <a href="#"><i class="fa-brands fa-playstation"></i></a>
+          <a href="#"><i class="fa-brands fa-xbox"></i></a>
+        </div>
+      </form>
+    </div>
+
+    <!-- Toggle Box -->
+    <div class="toggle-box">
+
+      <!-- Toggle Box Left -->
+      <div class="toggle-panel toggle-left">
+        <div class="logo-left">
+          <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+        </div>
+        <h1>Welcome Back</h1>
+        <p>Don't have an account ?</p>
+        <button class="btn register-btn">Register</button>
+      </div>
+
+      <!-- Toggle Box Right -->
+      <div class="toggle-panel toggle-right">
+        <div class="logo-left">
+          <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint logo">
+        </div>
+        <h1>Welcome</h1>
+        <p>Already have an Account ?</p>
+        <button class="btn login-btn">Login</button>
+      </div>
+    </div>
+  </div>
+  <script defer src="{{ url_for('static', filename='script_transition.js') }}"></script>
+</body>
+<p id="currentTime"></p>
+<script src="{{ url_for('static', filename='script_auth.js') }}"></script>
+
+</html>

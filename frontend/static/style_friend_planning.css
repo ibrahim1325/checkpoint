@@ -1,0 +1,180 @@
+/* Page planning ami : petits ajustements */
+
+.friend-weeks {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.week-section {
+    background: transparent;
+}
+
+.week-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 10px;
+}
+
+.week-title-row h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text-high);
+}
+
+.week-range {
+    font-size: 13px;
+    color: var(--muted);
+}
+
+/* Grilles amis = mêmes colonnes, mais non éditables */
+.friend-grid .calendar-cell {
+    cursor: default;
+}
+
+.friend-grid .calendar-cell:hover {
+    transform: none;
+}
+
+/* =========================
+   Friend header avatar
+========================= */
+
+.friend-header {
+    margin-bottom: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.friend-header-main {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.friend-avatar-big-wrap {
+    width: 58px;
+    height: 58px;
+    border-radius: 999px;
+    overflow: hidden;
+    border: 2px solid var(--line);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.45);
+    background: var(--panel-2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.friend-avatar-big {
+    width: 100%;
+    height: 100%;
+    border-radius: 999px;
+    object-fit: cover;
+}
+
+.friend-avatar-big.initials {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--text-high);
+}
+
+.friend-header-text h1 {
+    font-size: 26px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.friend-header-text p {
+    font-size: 14px;
+    color: var(--muted);
+}
+.friend-header-main {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;      /* espace entre flèche, avatar, texte */
+}
+
+/* version propre du bouton retour */
+.back-circle {
+    /* plus de position absolute */
+    position: static;
+    width: 42px;
+    height: 42px;
+    background: #FFD400;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+    font-size: 18px;
+    box-shadow: 0 0 10px rgba(255,212,0,0.6);
+    cursor: pointer;
+    transition: transform .15s;
+    margin-right: 0.5rem; /* petit espace avant l'avatar, tu peux ajuster */
+}
+
+.back-circle:hover {
+    transform: scale(1.1);
+}
+
+.friend-header {
+    padding: 24px 40px;
+}
+.friend-weeks-locked {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+}
+
+.locked-card {
+    background: #151515;
+    border-radius: 18px;
+    padding: 1.8rem 2rem;
+    max-width: 420px;
+    text-align: center;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.7);
+    border: 1px solid rgba(255,255,255,0.06);
+}
+
+.locked-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    margin: 0 auto 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,212,0,0.08);
+    color: var(--primary-color, #ffd400);
+    font-size: 1.4rem;
+}
+
+.locked-card h2 {
+    margin: 0 0 0.4rem;
+    font-size: 1.2rem;
+}
+
+.locked-card p {
+    margin: 0 0 1.2rem;
+    font-size: 0.95rem;
+    color: #cccccc;
+}
+
+.locked-back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9rem;
+    padding: 0.45rem 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.2);
+    text-decoration: none;
+    color: #f5f5f5;
+}
+
+.locked-back-link:hover {
+    background: rgba(255,255,255,0.06);
+}

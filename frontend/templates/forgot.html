@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>forgot password</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_forgot_reset.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">Reinitialize the password </h1>
+
+        {% if error %}
+            <p class="error-message">{{ error }}</p>
+        {% endif %}
+
+        {% if success %}
+            <p class="success-message">{{ success }}</p>
+            <p>Vérifiy the server console for the link</p>
+        {% endif %}
+
+        <form method="POST">
+            <div class="input-box">
+                <input type="email" name="email" placeholder="Your email" required>
+            </div>
+            <button type="submit" class="btn">Send link</button>
+        </form>
+
+        <a href="/" class="forgot-link">Back</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,75 @@
+/* =========================
+   Page Transitions (no jitter, no white edges)
+========================= */
+
+/* Fond cohérent avec le thème (évite le flash blanc/noir) */
+html, body{
+  /* par défaut suit les variables du thème courant */
+  background: linear-gradient(
+    145deg,
+    var(--bg-dark-1) 0%,
+    var(--bg-dark-2) 100%
+  );
+  /* petit fallback si variables non résolues */
+  background-color: #0b0b0b;
+  overflow-x: hidden; /* évite une barre horizontale pendant l’anim */
+}
+
+/* Spécifique LIGHT : assure un fond clair réel durant l’anim */
+:root[data-theme="light"] html,
+:root[data-theme="light"] body{
+  background: linear-gradient(145deg, #f5f6f8 0%, #ffffff 100%);
+  background-color: #ffffff;
+}
+
+/* Spécifique DARK : fallback homogène si nécessaire */
+:root[data-theme="dark"] html,
+:root[data-theme="dark"] body{
+  background: linear-gradient(145deg, #050505 0%, #1a1a1a 100%);
+  background-color: #0b0b0b;
+}
+
+/* On n’anime QUE quand une classe d’état est présente */
+.container{
+  will-change: transform, opacity;
+  backface-visibility: hidden;   /* supprime les artefacts GPU */
+  transform: translateZ(0);
+  opacity: 1;                    /* pas d’état masqué par défaut */
+}
+
+/* Enter */
+.container.enter{
+  animation: slide-in 140ms cubic-bezier(.22,.85,.29,.99) both;
+}
+
+/* Exit */
+.container.exit-forward{
+  animation: slide-out-left 140ms cubic-bezier(.22,.85,.29,.99) both;
+}
+.container.exit-back{
+  animation: slide-out-right 140ms cubic-bezier(.22,.85,.29,.99) both;
+}
+
+/* Keyframes
+   Astuce : 8px pour réduire le risque de voir le fond sur les bords.
+   3D = rendu GPU plus stable. */
+@keyframes slide-in{
+  from{ transform: translate3d(8px,0,0); opacity: 0; }
+  to  { transform: translate3d(0,0,0);  opacity: 1; }
+}
+@keyframes slide-out-left{
+  from{ transform: translate3d(0,0,0);   opacity: 1; }
+  to  { transform: translate3d(-8px,0,0); opacity: 0; }
+}
+@keyframes slide-out-right{
+  from{ transform: translate3d(0,0,0);  opacity: 1; }
+  to  { transform: translate3d(8px,0,0); opacity: 0; }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce){
+  .container{ opacity: 1; transform: none; }
+  .container.enter,
+  .container.exit-forward,
+  .container.exit-back{ animation: none !important; }
+}

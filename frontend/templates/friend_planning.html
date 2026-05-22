@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en"
+      data-theme="{{ (user.theme if user else 'dark') or 'dark' }}">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ friend.username }} – Schedule</title>
+
+    <!-- Styles : on réutilise le même look que Schedule -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_profile_panel.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_schedule.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_friend_planning.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+
+<body data-friend="{{ friend.username }}"
+      data-week1="{{ week1_key }}"
+      data-week2="{{ week2_key }}">
+
+{% set _status = _status or 'online' %}
+{% set _status_label = _status_label or 'Online' %}
+
+<div class="container">
+
+    <!-- Sidebar simple -->
+    <aside class="sidebar">
+        <div class="home-logo">
+            <a href="{{ url_for('home') }}">
+                <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}"
+                     alt="Checkpoint Logo">
+            </a>
+        </div>
+
+        <nav class="menu">
+            <ul>
+                <li><a href="{{ url_for('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a></li>
+                <li><a href="{{ url_for('schedule') }}"><i class="fa-solid fa-calendar-days"></i><span>Schedule</span></a></li>
+                <!-- ====== ICI : Messages avec bulle ====== -->
+                <li class="menu-item-messages">
+                    <a class="nav-item" href="{{ url_for('friends') }}">
+                        <i class="fa-solid fa-message"></i>
+                        <span>Messages</span>
+                        {% if unread_messages_count and unread_messages_count > 0 %}
+                        <span class="badge-unread">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <!-- ======================================= -->
+            </ul>
+        </nav>
+
+        <button class="me-button status-{{ _status }}" id="openProfile" type="button"
+                aria-haspopup="dialog" aria-controls="profilePanel">
+
+            <div class="me-avatar-wrap">
+                {% if avatar_url %}
+                <img class="me-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                {% else %}
+                <div class="me-avatar me-initials">{{ user.username[:1] | upper }}</div>
+                {% endif %}
+                <span class="me-dot"></span>
+            </div>
+
+            <div class="me-id">
+                <strong>{{ user.username }}</strong>
+                <span class="me-status-text" id="meStatusText">{{ _status_label }}</span>
+            </div>
+
+            <span class="me-caret" aria-hidden="true">▾</span>
+        </button>
+    </aside>
+
+    <!-- Contenu principal -->
+    <main class="content">
+
+        <header class="friend-header">
+            <div class="friend-header-main">
+                <a href="{{ url_for('friends') }}" class="back-circle">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </a>
+                <div class="friend-avatar-big-wrap">
+
+                    {% if friend_avatar_url %}
+                    <img class="friend-avatar-big"
+                         src="{{ friend_avatar_url }}"
+                         alt="{{ friend.username }}">
+                    {% else %}
+                    <div class="friend-avatar-big initials">
+                        {{ friend.username[:1] | upper }}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="friend-header-text">
+                    <h1>{{ friend.username }}'s schedule</h1>
+
+                    {% if can_view_schedule %}
+                    <p>View this week and next week in read-only mode.</p>
+                    {% else %}
+                    <p>This user has chosen not to share their schedule with you.</p>
+                    {% endif %}
+                </div>
+
+            </div>
+        </header>
+
+        {# =======================
+        SI ACCÈS AUTORISÉ
+        ======================= #}
+        {% if can_view_schedule %}
+
+        <div class="friend-weeks">
+
+            {# -------- Semaine courante -------- #}
+            {% set w1_start = first_week[0].date %}
+            {% set w1_end   = first_week[-1].date %}
+            <section class="week-section">
+                <div class="week-title-row">
+                    <h2>Current week</h2>
+                    <span class="week-range">
+                        {{ w1_start.strftime("%b %d") }} – {{ w1_end.strftime("%b %d") }}
+                    </span>
+                </div>
+
+                <div class="calendar-grid friend-grid" data-week="{{ week1_key }}">
+                    {% for d in first_week %}
+                    <div class="day-column">
+                        <div class="day-header">
+                            {{ d.date.strftime("%a %d") }}
+                        </div>
+                        {% for i in range(5) %}
+                        <div class="calendar-cell"></div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            {# -------- Semaine suivante -------- #}
+            {% set w2_start = second_week[0].date %}
+            {% set w2_end   = second_week[-1].date %}
+            <section class="week-section">
+                <div class="week-title-row">
+                    <h2>Next week</h2>
+                    <span class="week-range">
+                        {{ w2_start.strftime("%b %d") }} – {{ w2_end.strftime("%b %d") }}
+                    </span>
+                </div>
+
+                <div class="calendar-grid friend-grid" data-week="{{ week2_key }}">
+                    {% for d in second_week %}
+                    <div class="day-column">
+                        <div class="day-header">
+                            {{ d.date.strftime("%a %d") }}
+                        </div>
+                        {% for i in range(5) %}
+                        <div class="calendar-cell"></div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+        </div>
+
+        {# =======================
+        SI PLANNING PRIVÉ
+        ======================= #}
+        {% else %}
+
+        <div class="friend-weeks friend-weeks-locked">
+            <div class="locked-card">
+                <div class="locked-icon">
+                    <i class="fa-solid fa-lock"></i>
+                </div>
+                <h2>Schedule is private</h2>
+                <p>
+                    {{ friend.username }} has restricted access to their schedule.
+                    You cannot view their availability.
+                </p>
+                <a href="{{ url_for('friends') }}" class="locked-back-link">
+                    <i class="fa-solid fa-arrow-left"></i> Back to friends
+                </a>
+            </div>
+        </div>
+
+        {% endif %}
+
+    </main>
+</div>
+
+<!-- Profile panel réutilisé -->
+<div class="profilepanel-backdrop" id="profileBackdrop" hidden></div>
+<div class="profilepanel" id="profilePanel" role="dialog" aria-modal="true"
+     aria-labelledby="pp-title" hidden>
+    <!-- (copie de ton profile panel de schedule.html, tu peux la reprendre telle quelle) -->
+</div>
+
+<script src="{{ url_for('static', filename='script_profile_panel.js') }}" defer></script>
+<script src="{{ url_for('static', filename='script_friend_planning.js') }}" defer></script>
+
+</body>
+</html>

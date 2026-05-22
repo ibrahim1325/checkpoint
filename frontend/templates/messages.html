@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ (user.theme if user else 'dark') or 'dark' }}">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Messages - Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_friends.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_messages.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_profile_panel.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+
+<body>
+    {% set _status = _status or 'online' %}
+    {% set _status_label = _status_label or 'Online' %}
+
+    {# ami actuellement ouvert dans la conversation #}
+    {% set active_friend = friend %}
+    {% set active_username = active_friend.username if active_friend else None %}
+
+    <div class="container">
+        <!-- Main sidebar (app) -->
+        <aside class="sidebar">
+            <div class="home-logo">
+                <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+            </div>
+
+            <nav class="menu">
+                <ul>
+                    <li>
+                        <a href="{{ url_for('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="{{ url_for('schedule') }}">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>Schedule</span>
+                        </a>
+                    </li>
+                    <!-- ====== ICI : Messages avec bulle ====== -->
+                    <li class="menu-item-messages">
+                        <a class="nav-item" href="{{ url_for('friends') }}">
+                            <i class="fa-solid fa-message"></i>
+                            <span>Messages</span>
+                            {% if unread_messages_count and unread_messages_count > 0 %}
+                            <span class="badge-unread">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <!-- ======================================= -->
+                </ul>
+            </nav>
+
+            <!-- Mini profile -->
+            <button class="me-button status-{{ _status }}" id="openProfile" type="button" aria-haspopup="dialog"
+                aria-controls="profilePanel">
+                <div class="me-avatar-wrap">
+                    {% if avatar_url %}
+                    <img class="me-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                    {% else %}
+                    <div class="me-avatar me-initials">
+                        {{ user.username[:1] | upper }}
+                    </div>
+                    {% endif %}
+                    <span class="me-dot"></span>
+                </div>
+
+                <div class="me-id">
+                    <strong>{{ user.username }}</strong>
+                    <span class="me-status-text" id="meStatusText">{{ _status_label }}</span>
+                </div>
+
+                <span class="me-caret" aria-hidden="true">▾</span>
+            </button>
+        </aside>
+
+        <!-- Sidebar "DM / friends" -->
+        <aside class="dm-sidebar">
+
+            <!-- Top : Friends pill + search -->
+            <div class="dm-top">
+                <a href="{{ url_for('friends') }}" class="dm-top-friends-link">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Friends</span>
+                </a>
+
+                <div class="dm-search-wrap">
+                    <input type="text" id="dmSearchInput" class="dm-search-input"
+                        placeholder="Search or start a conversation">
+                </div>
+            </div>
+
+            <div class="dm-section-title">Direct Messages</div>
+
+            <ul class="dm-list">
+                {% if friends %}
+                {% for f in friends %}
+                {% set f_status = (f.status or 'invisible')|lower %}
+                {% set dot_class =
+                'dot-online' if f_status=='online' else
+                'dot-idle' if f_status=='idle' else
+                'dot-dnd' if f_status=='dnd' else
+                'dot-invisible'
+                %}
+                {% set status_label =
+                'Online' if f_status=='online' else
+                'Idle' if f_status=='idle' else
+                'Do Not Disturb' if f_status=='dnd' else
+                'Invisible'
+                %}
+
+                <li class="dm-item {% if active_username and f.username == active_username %}dm-item-active{% endif %}"
+                    data-name="{{ f.username|lower }}">
+                    <a href="{{ url_for('messages', username=f.username) }}" class="dm-item-link">
+                        <div class="dm-avatar-wrap">
+                            {% if f.profile_pic %}
+                            {% if f.profile_pic[:4] == 'http' %}
+                            <img class="dm-avatar" src="{{ f.profile_pic }}" alt="{{ f.username }}">
+                            {% else %}
+                            <img class="dm-avatar" src="data:image/png;base64,{{ f.profile_pic }}"
+                                alt="{{ f.username }}">
+                            {% endif %}
+                            {% else %}
+                            <div class="dm-avatar">{{ f.username[:1]|upper }}</div>
+                            {% endif %}
+                            <span class="dm-status-dot {{ dot_class }}"></span>
+                        </div>
+
+                        <div class="dm-meta">
+                            <div class="dm-name">{{ f.username }}</div>
+                            <div class="dm-sub">{{ status_label }}</div>
+                        </div>
+                    </a>
+                </li>
+                {% endfor %}
+                {% else %}
+                <li class="dm-empty">No conversations yet.</li>
+                {% endif %}
+            </ul>
+        </aside>
+
+        <!-- Main messages area -->
+        <main class="content messages-main">
+            {% if active_friend %}
+            {% set f_status = (active_friend.status or 'online')|lower %}
+            {% set dot_class =
+            'dot-online' if f_status=='online' else
+            'dot-idle' if f_status=='idle' else
+            'dot-dnd' if f_status=='dnd' else
+            'dot-invisible'
+            %}
+            {% set status_label =
+            'Online' if f_status=='online' else
+            'Idle' if f_status=='idle' else
+            'Do Not Disturb' if f_status=='dnd' else
+            'Invisible'
+            %}
+
+            <!-- Header de la conversation -->
+            <header class="messages-header">
+                <div class="messages-header-left">
+                    <div class="conv-avatar-wrap">
+                        {% if active_friend.profile_pic %}
+                        {% if active_friend.profile_pic[:4] == 'http' %}
+                        <img class="conv-avatar" src="{{ active_friend.profile_pic }}"
+                            alt="{{ active_friend.username }}">
+                        {% else %}
+                        <img class="conv-avatar" src="data:image/png;base64,{{ active_friend.profile_pic }}"
+                            alt="{{ active_friend.username }}">
+                        {% endif %}
+                        {% else %}
+                        <div class="conv-avatar">
+                            {{ active_friend.username[:1] | upper }}
+                        </div>
+                        {% endif %}
+                        <span class="conv-status-dot {{ dot_class }}"></span>
+                    </div>
+                    <div class="messages-header-meta">
+                        <div class="messages-header-name">{{ active_friend.username }}</div>
+                        <div class="messages-header-sub">{{ status_label }}</div>
+                    </div>
+                </div>
+
+                <div class="messages-header-actions">
+                    <button class="messages-header-btn" type="button" title="More options">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Zone des messages -->
+            <section class="messages-body">
+                <div class="messages-scroll" id="messagesScroll">
+                    {% if messages %}
+                    {% for msg in messages %}
+                    <article class="message-row {% if msg.is_own %}me{% else %}them{% endif %}"
+                        data-message-id="{{ msg.id }}">
+
+                        <!-- Avatar (ami uniquement, caché pour mes messages via CSS) -->
+                        <div class="message-avatar-wrap">
+                            {% if msg.is_own %}
+                            {% if avatar_url %}
+                            <img class="message-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                            {% else %}
+                            <div class="message-avatar">{{ user.username[:1] | upper }}</div>
+                            {% endif %}
+                            {% else %}
+                            {% if active_friend.profile_pic %}
+                            {% if active_friend.profile_pic[:4] == 'http' %}
+                            <img class="message-avatar" src="{{ active_friend.profile_pic }}"
+                                alt="{{ active_friend.username }}">
+                            {% else %}
+                            <img class="message-avatar" src="data:image/png;base64,{{ active_friend.profile_pic }}"
+                                alt="{{ active_friend.username }}">
+                            {% endif %}
+                            {% else %}
+                            <div class="message-avatar">{{ active_friend.username[:1] | upper }}</div>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+
+                        <!-- Contenu : bulle + heure + actions -->
+                        <div class="message-content">
+
+                            <div class="message-bubble">
+                                {% if msg.text %}
+                                <p class="message-text">{{ msg.text }}</p>
+                                {% endif %}
+
+                                {% if msg.attachment_url %}
+                                {% set is_image = false %}
+                                {% if msg.attachment_type and msg.attachment_type.startswith('image/') %}
+                                {% set is_image = true %}
+                                {% elif msg.attachment_name %}
+                                {% set lower_name = msg.attachment_name|lower %}
+                                {% if lower_name.endswith('.png') or lower_name.endswith('.jpg')
+                                or lower_name.endswith('.jpeg') or lower_name.endswith('.gif')
+                                or lower_name.endswith('.webp') %}
+                                {% set is_image = true %}
+                                {% endif %}
+                                {% endif %}
+
+                                <div class="message-attachment">
+                                    {% if is_image %}
+                                    <img src="{{ url_for('static', filename=msg.attachment_url) }}"
+                                        alt="{{ msg.attachment_name or 'Image' }}" class="message-attachment-image">
+                                    {% else %}
+                                    <a href="{{ url_for('static', filename=msg.attachment_url) }}" target="_blank"
+                                        class="message-attachment-link">
+                                        <i class="fa-solid fa-paperclip"></i>
+                                        {{ msg.attachment_name or 'Download file' }}
+                                    </a>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            </div>
+
+                            <span class="message-time">{{ msg.sent_at }}</span>
+
+                            {% if msg.is_own %}
+                            <div class="message-actions"
+                                data-edit-url="{{ url_for('edit_message', username=active_friend.username, msg_id=msg.id) }}"
+                                data-delete-url="{{ url_for('delete_message', username=active_friend.username, msg_id=msg.id) }}">
+
+                                <button type="button" class="message-menu-toggle" aria-haspopup="true"
+                                    aria-expanded="false" title="More actions">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
+
+                                <div class="message-menu hidden" role="menu">
+                                    <button type="button" class="message-menu-item message-edit-btn">
+                                        <i class="fa-solid fa-pen"></i>
+                                        <span>Edit message</span>
+                                    </button>
+
+                                    <form method="POST"
+                                        action="{{ url_for('delete_message', username=active_friend.username, msg_id=msg.id) }}"
+                                        class="message-delete-form">
+                                        <button type="submit" class="message-menu-item message-delete-btn">
+                                            <i class="fa-solid fa-trash"></i>
+                                            <span>Delete message</span>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </article>
+                    {% endfor %}
+                    {% else %}
+                    <p class="message-system">
+                        No messages yet &mdash; say hi to {{ active_friend.username }} 👋
+                    </p>
+                    {% endif %}
+                </div>
+            </section>
+
+            <!-- Barre d'envoi de message -->
+            <footer class="messages-input">
+
+                <!-- File upload preview -->
+                <div id="uploadPreviewContainer" class="upload-preview hidden">
+                    <div class="upload-card">
+                        <div class="upload-thumb" id="uploadPreviewThumb"></div>
+                        <div class="upload-filename" id="uploadPreviewName"></div>
+                        <button type="button" class="upload-remove-btn" id="uploadPreviewDelete"
+                            title="Remove attachment">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <form class="message-input-bar" method="POST" enctype="multipart/form-data"
+                    action="{{ url_for('messages', username=active_friend.username) }}">
+
+                    <!-- Hidden real file input -->
+                    <input type="file" id="messageFileInput" name="attachment" style="display:none">
+
+
+                    <!-- PLUS à gauche -->
+                    <button type="button" class="message-input-plus-btn" title="Add file">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+
+                    <!-- Champ texte -->
+                    <input type="text" name="message" id="chatMessageInput" class="message-input-field"
+                        autocomplete="off" placeholder="Message @{{ active_friend.username }}...">
+
+                    <!-- Emoji à droite -->
+                    <div class="message-input-emoji-wrapper">
+                        <button type="button" class="message-input-icon-btn" title="Add emoji">
+                            <i class="fa-regular fa-face-smile"></i>
+                        </button>
+
+                        <!-- Emoji picker (Google-style) -->
+                        <emoji-picker id="emojiPicker" class="emoji-picker hidden"></emoji-picker>
+                    </div>
+
+                    <!-- Envoi -->
+                    <button type="submit" class="message-send-btn" title="Send">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </form>
+            </footer>
+
+            {% else %}
+            <!-- Aucun ami sélectionné -->
+            <section class="chat-empty-state">
+                <h2>Select a friend to start chatting</h2>
+                <p>Choose someone from the left sidebar to open a conversation.</p>
+            </section>
+            {% endif %}
+        </main>
+    </div>
+
+    <!-- Profile panel -->
+    <div class="profilepanel-backdrop" id="profileBackdrop" hidden></div>
+
+    <div class="profilepanel" id="profilePanel" role="dialog" aria-modal="true" aria-labelledby="pp-title" hidden>
+        <div class="pp-header">
+            <div class="pp-user">
+                <div class="pp-avatar-wrap">
+                    {% if avatar_url %}
+                    <img class="pp-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                    {% else %}
+                    <div class="pp-avatar pp-initials">{{ user.username[:1]|upper }}</div>
+                    {% endif %}
+                    <span id="ppAvatarDot" class="pp-avatar-dot {{ _dot }}"></span>
+                </div>
+
+                <div class="pp-id">
+                    <strong id="pp-title">{{ user.username }}</strong>
+                    <span class="pp-statusline" id="ppStatusText">{{ _status_label }}</span>
+                </div>
+            </div>
+
+            <button class="pp-close" id="ppClose" aria-label="Close">✕</button>
+        </div>
+
+        <div class="pp-section">
+            <div class="pp-label">Status</div>
+            <div class="pp-status-grid" role="group" aria-label="Choose a status">
+                <button class="pp-status" data-status="online"><span class="dot dot-online"></span> Online</button>
+                <button class="pp-status" data-status="idle"><span class="dot dot-idle"></span> Idle</button>
+                <button class="pp-status" data-status="dnd"><span class="dot dot-dnd"></span> Do Not Disturb</button>
+                <button class="pp-status" data-status="invisible"><span class="dot dot-invisible"></span>
+                    Invisible</button>
+            </div>
+        </div>
+
+        <div class="pp-section">
+            <div class="pp-label">Profile</div>
+            <div class="pp-actions">
+                <a class="pp-btn" href="/profile">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Edit Profile
+                </a>
+                <a class="pp-btn" href="/settings">
+                    <i class="fa-solid fa-gear"></i>
+                    Settings
+                </a>
+            </div>
+        </div>
+
+        <div class="pp-section">
+            <a class="pp-logout" href="/logout">Log out</a>
+        </div>
+    </div>
+
+    <script type="module" src="https://cdn.jsdelivr.net/npm/emoji-picker-element@^1/index.js"></script>
+    <script src="{{ url_for('static', filename='script_profile_panel.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script_home.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script_transition.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script_friends.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script_messages.js') }}" defer></script>
+</body>
+
+</html>

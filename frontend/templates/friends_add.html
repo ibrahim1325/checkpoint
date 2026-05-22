@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ (user.theme if user else 'dark') or 'dark' }}">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Friend - Dashboard</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_friends.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style_profile_panel.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+
+<body>
+    {# Status from inject_globals (with fallback) #}
+    {% set _status = _status or 'online' %}
+    {% set _status_label = _status_label or 'Online' %}
+
+    <div class="container">
+        <!-- Main sidebar -->
+        <aside class="sidebar">
+            <div class="home-logo">
+                <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+            </div>
+
+            <nav class="menu">
+                <ul>
+                    <li>
+                        <a href="{{ url_for('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                    </li>
+                    <li>
+                        <a class="nav-item" href="{{ url_for('schedule') }}">
+                            <i class="fa-solid fa-calendar-days"></i>
+                            <span>Schedule</span>
+                        </a>
+                    </li>
+                    <!-- ====== ICI : Messages avec bulle ====== -->
+                    <li class="menu-item-messages">
+                        <a class="nav-item" href="{{ url_for('friends') }}">
+                            <i class="fa-solid fa-message"></i>
+                            <span>Messages</span>
+                            {% if unread_messages_count and unread_messages_count > 0 %}
+                            <span class="badge-unread">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <!-- ======================================= -->
+
+                </ul>
+            </nav>
+
+            <!-- User button -->
+            <button class="me-button status-{{ _status }}" id="openProfile" type="button" aria-haspopup="dialog"
+                    aria-controls="profilePanel">
+                <div class="me-avatar-wrap">
+                    {% if avatar_url %}
+                    <img class="me-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                    {% else %}
+                    <div class="me-avatar me-initials">{{ user.username[:1] | upper }}</div>
+                    {% endif %}
+                    <span class="me-dot" aria-hidden="true"></span>
+                </div>
+
+                <div class="me-id">
+                    <strong>{{ user.username }}</strong>
+                    <span class="me-status-text" id="meStatusText">{{ _status_label }}</span>
+                </div>
+
+                <span class="me-caret" aria-hidden="true">▾</span>
+            </button>
+        </aside>
+
+        <!-- DM / friends sidebar -->
+        <aside class="dm-sidebar">
+
+            <!-- Onglet Friends + recherche -->
+            <div class="dm-top">
+                <a href="{{ url_for('friends') }}" class="dm-top-friends-link">
+                    <i class="fa-solid fa-user-group"></i>
+                    <span>Friends</span>
+                </a>
+            </div>
+
+            <div class="dm-search-wrap">
+                <input type="text"
+                       id="dmSearchInput"
+                       class="dm-search-input"
+                       placeholder="Search or start a conversation">
+            </div>
+
+            <div class="dm-section-title">Direct Messages</div>
+
+            <ul class="dm-list">
+                {% if friends %}
+                {% for f in friends %}
+                {# f = { username, status, profile_pic } #}
+                {% set f_status = (f.status or 'invisible')|lower %}
+                {% set dot_class =
+                    'dot-online' if f_status=='online' else
+                    'dot-idle' if f_status=='idle' else
+                    'dot-dnd' if f_status=='dnd' else
+                    'dot-invisible'
+                %}
+                {% set status_label =
+                    'Online' if f_status=='online' else
+                    'Idle' if f_status=='idle' else
+                    'Do Not Disturb' if f_status=='dnd' else
+                    'Invisible'
+                %}
+                <li class="dm-item" data-name="{{ f.username|lower }}">
+                    <a href="{{ url_for('messages', username=f.username) }}" class="dm-item-link">
+                        <div class="dm-avatar-wrap">
+                            {% if f.profile_pic %}
+                                {% if f.profile_pic[:4] == 'http' %}
+                                <img class="dm-avatar" src="{{ f.profile_pic }}" alt="{{ f.username }}">
+                                {% else %}
+                                <img class="dm-avatar" src="data:image/png;base64,{{ f.profile_pic }}" alt="{{ f.username }}">
+                                {% endif %}
+                            {% else %}
+                            <div class="dm-avatar">{{ f.username[:1]|upper }}</div>
+                            {% endif %}
+
+                            <span class="dm-status-dot {{ dot_class }}"></span>
+                        </div>
+                        <div class="dm-meta">
+                            <div class="dm-name">{{ f.username }}</div>
+                            <div class="dm-sub">{{ status_label }}</div>
+                        </div>
+                    </a>
+                </li>
+                {% endfor %}
+                {% else %}
+                <li class="dm-empty">No conversations yet.</li>
+                {% endif %}
+            </ul>
+        </aside>
+
+        <!-- Main zone: Add friend -->
+        <main class="content friends-main">
+
+            <!-- Tabs -->
+            <div class="friends-topbar">
+                <div class="friends-tabs">
+                    <a href="{{ url_for('friends', view='online') }}" class="friends-tab">
+                        <span>Online</span>
+                    </a>
+                    <a href="{{ url_for('friends', view='all') }}" class="friends-tab">
+                        <span>All</span>
+                    </a>
+                    <a href="{{ url_for('friends_add') }}" class="friends-tab friends-tab-add friends-tab-active">
+                        <span>Add Friend</span>
+                    </a>
+                </div>
+            </div>
+
+            <!-- ----------- ADD FRIEND CARD ----------- -->
+            <section class="friends-add-section">
+                <h1 class="friends-add-title">Add a Friend</h1>
+                <p class="friends-add-subtitle">
+                    You can add a friend using their Checkpoint username.
+                </p>
+
+                <form action="/add_friend" method="POST" class="friends-add-card sleek">
+                    <input type="text" name="friend" class="friends-add-input sleek" placeholder="Username" required>
+                    <button type="submit" class="friends-add-btn sleek-btn">
+                        Add Friend
+                    </button>
+                </form>
+
+                {# Flash messages just under the input + button #}
+                {% with messages = get_flashed_messages(with_categories=True) %}
+                {% if messages %}
+                <div class="friends-flash-container input-flash">
+                    {% for category, msg in messages %}
+                    <div class="friends-flash friends-flash-{{ category }}">
+                        {{ msg }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Profile panel -->
+    <div class="profilepanel-backdrop" id="profileBackdrop" hidden></div>
+
+    <div class="profilepanel" id="profilePanel" role="dialog" aria-modal="true" aria-labelledby="pp-title" hidden>
+        <div class="pp-header">
+            <div class="pp-user">
+                <div class="pp-avatar-wrap">
+                    {% if avatar_url %}
+                    <img class="pp-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+                    {% else %}
+                    <div class="pp-avatar pp-initials">{{ user.username[:1]|upper }}</div>
+                    {% endif %}
+                    <span id="ppAvatarDot" class="pp-avatar-dot {{ _dot }}"></span>
+                </div>
+
+                <div class="pp-id">
+                    <strong id="pp-title">{{ user.username }}</strong>
+                    <span class="pp-statusline" id="ppStatusText">{{ _status_label }}</span>
+                </div>
+            </div>
+
+            <button class="pp-close" id="ppClose" aria-label="Close">✕</button>
+        </div>
+
+        <div class="pp-section">
+            <div class="pp-label">Status</div>
+            <div class="pp-status-grid" role="group" aria-label="Choose a status">
+                <button class="pp-status" data-status="online"><span class="dot dot-online"></span> Online</button>
+                <button class="pp-status" data-status="idle"><span class="dot dot-idle"></span> Idle</button>
+                <button class="pp-status" data-status="dnd"><span class="dot dot-dnd"></span> Do Not Disturb</button>
+                <button class="pp-status" data-status="invisible"><span class="dot dot-invisible"></span> Invisible
+                </button>
+            </div>
+        </div>
+
+        <div class="pp-section">
+            <div class="pp-label">Profile</div>
+            <div class="pp-actions">
+                <a class="pp-btn" href="/profile">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    Edit Profile
+                </a>
+                <a class="pp-btn" href="/settings">
+                    <i class="fa-solid fa-gear"></i>
+                    Settings
+                </a>
+            </div>
+        </div>
+
+        <div class="pp-section">
+            <a class="pp-logout" href="/logout">Log out</a>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script_profile_panel.js') }}" defer></script>
+    <script src="{{ url_for('static', filename='script_home.js') }}" defer></script>
+    <script defer src="{{ url_for('static', filename='script_transition.js') }}"></script>
+</body>
+
+</html>

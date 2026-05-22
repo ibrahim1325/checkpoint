@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="{{ (user.theme if user else 'dark') or 'dark' }}">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Home - Dashboard</title>
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_home.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style_profile_panel.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+</head>
+
+<body>
+
+  {% set _status = (user.status|lower) if (user is defined and user.status) else 'online' %}
+  {% set _status_label = 'Do Not Disturb' if _status=='dnd' else _status.capitalize() %}
+
+  <div class="container">
+    <aside class="sidebar">
+      <div class="home-logo">
+        <img src="{{ url_for('static', filename='logo/logo_2bg.png') }}" alt="Checkpoint Logo">
+      </div>
+
+        <nav class="menu">
+            <ul>
+                <li class="active">
+                    <a href="{{ url_for('home') }}"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                </li>
+                <li>
+                    <a class="nav-item" href="{{ url_for('schedule') }}">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>Schedule</span>
+                    </a>
+                </li>
+
+                <!-- ====== ICI : Messages avec bulle ====== -->
+                <li class="menu-item-messages">
+                    <a class="nav-item" href="{{ url_for('friends') }}">
+                        <i class="fa-solid fa-message"></i>
+                        <span>Messages</span>
+                        {% if unread_messages_count and unread_messages_count > 0 %}
+                        <span class="badge-unread">{{ unread_messages_count }}</span>
+                        {% endif %}
+                    </a>
+                </li>
+                <!-- ======================================= -->
+            </ul>
+        </nav>
+
+
+        <!-- ========================================= -->
+      <!--      MINI PROFILE BUTTON (CORRECTED)      -->
+      <!-- ========================================= -->
+      <button class="me-button status-{{ _status }}" id="openProfile" type="button"
+              aria-haspopup="dialog" aria-controls="profilePanel">
+
+        <!-- Avatar -->
+        <div class="me-avatar-wrap">
+          {% if avatar_url %}
+            <img class="me-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+          {% else %}
+            <div class="me-avatar me-initials">{{ user.username[:1] | upper }}</div>
+          {% endif %}
+          <span class="me-dot"></span>
+        </div>
+
+        <!-- Username + Status -->
+        <div class="me-id">
+          <strong>{{ user.username }}</strong>
+          <span class="me-status-text" id="meStatusText">{{ _status_label }}</span>
+        </div>
+
+        <!-- Caret -->
+        <span class="me-caret">▾</span>
+      </button>
+
+    </aside>
+
+    <main class="content">
+      <header>
+        <h1>Welcome Back, {{ user.username }}</h1>
+        <p>Upcoming Events</p>
+      </header>
+
+      <div class="card-container">
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-circle-user"></i></div>
+          <div class="card-info">
+            <h3>2</h3>
+            <p>Game Session with Ibrahim Upcoming</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-clock"></i></div>
+          <div class="card-info">
+            <h3>6</h3>
+            <p>Upcoming Exams</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-icon"><i class="fa-solid fa-circle-check"></i></div>
+          <div class="card-info">
+            <h3>2</h3>
+            <p>Game Sessions Completed</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Backdrop -->
+  <div class="profilepanel-backdrop" id="profileBackdrop" hidden></div>
+
+  <!-- ========================================= -->
+  <!--            PROFILE PANEL (BIG)            -->
+  <!-- ========================================= -->
+  <div class="profilepanel" id="profilePanel" role="dialog" aria-modal="true" aria-labelledby="pp-title" hidden>
+    <div class="pp-header">
+      <div class="pp-user">
+        <div class="pp-avatar-wrap">
+          {% if avatar_url %}
+          <img class="pp-avatar" src="{{ avatar_url }}" alt="{{ user.username }}">
+          {% else %}
+          <div class="pp-avatar pp-initials">{{ user.username[:1] | upper }}</div>
+          {% endif %}
+          <span id="ppAvatarDot" class="pp-avatar-dot {{ _dot }}"></span>
+        </div>
+
+        <div class="pp-id">
+          <strong id="pp-title">{{ user.username }}</strong>
+          <span class="pp-statusline" id="ppStatusText">{{ _status_label }}</span>
+        </div>
+      </div>
+
+      <button class="pp-close" id="ppClose" aria-label="Close">✕</button>
+    </div>
+
+    <div class="pp-section">
+      <div class="pp-label">Status</div>
+      <div class="pp-status-grid" role="group" aria-label="Choose a status">
+        <button class="pp-status" data-status="online"><span class="dot dot-online"></span> Online</button>
+        <button class="pp-status" data-status="idle"><span class="dot dot-idle"></span> Idle</button>
+        <button class="pp-status" data-status="dnd"><span class="dot dot-dnd"></span> Do Not Disturb</button>
+        <button class="pp-status" data-status="invisible"><span class="dot dot-invisible"></span> Invisible</button>
+      </div>
+    </div>
+
+    <div class="pp-section">
+      <div class="pp-label">Profile</div>
+      <div class="pp-actions">
+        <a class="pp-btn" href="/profile">
+          <i class="fa-solid fa-pen-to-square"></i> Edit Profile
+        </a>
+        <a class="pp-btn" href="/settings">
+          <i class="fa-solid fa-gear"></i> Settings
+        </a>
+      </div>
+    </div>
+
+    <div class="pp-section">
+      <a class="pp-logout" href="/logout">Log out</a>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script_profile_panel.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='script_home.js') }}" defer></script>
+  <script defer src="{{ url_for('static', filename='script_transition.js') }}"></script>
+</body>
+
+</html>
